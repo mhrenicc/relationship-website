@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { StubPage } from "@/components/StubPage";
+import { SectionShell } from "@/components/SectionShell";
 
-export const metadata: Metadata = { title: "Us — Trips" };
+export const metadata: Metadata = { title: "Trips · Us" };
 
 export default function TripsPage() {
   return (
-    <StubPage
-      eyebrow="Adventures"
+    <SectionShell
       title="Trips"
-      description="A map and log of everywhere we've traveled together. Coming soon."
+      intro="Every place we went, and what it was actually like."
+      awaiting="No trips logged yet. Start with the one you both still bring up."
     />
   );
 }

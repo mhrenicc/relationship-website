@@ -8,32 +8,36 @@ const links = [
 
 export function Nav() {
   return (
-    <header className="flex items-center justify-between px-6 py-6 sm:px-10">
+    <nav
+      aria-label="Main"
+      className="flex items-center justify-between gap-6 px-[var(--space-gutter)] py-6"
+    >
       <Link
         href="/"
-        className="font-[family-name:var(--font-display)] text-xl italic text-[var(--color-terracotta)]"
+        className="font-[family-name:var(--font-serif)] text-lg font-light italic text-[var(--color-ink)]"
       >
         Us
       </Link>
-      <nav className="flex items-center gap-6 text-sm text-[var(--color-ink-soft)]">
+
+      <div className="flex items-center gap-5 text-[length:var(--text-meta)] sm:gap-7">
         {links.map((link) => (
           <Link
             key={link.href}
             href={link.href}
-            className="transition-colors hover:text-[var(--color-terracotta)]"
+            className="text-[var(--color-ink-muted)] transition-colors duration-[var(--duration-quick)] hover:text-[var(--color-ink)]"
           >
             {link.label}
           </Link>
         ))}
-        <form action="/logout" method="post">
+        <form action="/logout" method="post" className="flex">
           <button
             type="submit"
-            className="text-[var(--color-ink-soft)] transition-colors hover:text-[var(--color-terracotta)]"
+            className="text-[var(--color-ink-muted)] transition-colors duration-[var(--duration-quick)] hover:text-[var(--color-ink)]"
           >
-            Log out
+            Lock
           </button>
         </form>
-      </nav>
-    </header>
+      </div>
+    </nav>
   );
 }

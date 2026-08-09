@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { StubPage } from "@/components/StubPage";
+import { SectionShell } from "@/components/SectionShell";
 
-export const metadata: Metadata = { title: "Us — Timeline" };
+export const metadata: Metadata = { title: "Timeline · Us" };
 
 export default function TimelinePage() {
   return (
-    <StubPage
-      eyebrow="Our story"
+    <SectionShell
       title="Timeline"
-      description="This is where our milestones will live — first date, first trip, all of it. Coming soon."
+      intro="Everything that happened, in the order it happened."
+      awaiting="Nothing here yet. The first entry is the day you met, and you already know the date."
     />
   );
 }

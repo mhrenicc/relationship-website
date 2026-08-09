@@ -1,51 +1,120 @@
 @import "tailwindcss";
 
 :root {
-  --color-cream: #faf3e9;
-  --color-surface: #fffcf7;
-  --color-ink: #2a1c14;
-  --color-ink-soft: #6b5748;
-  --color-terracotta: #b8481f;
-  --color-terracotta-soft: #d97a4f;
-  --color-rose: #e2a893;
-  --color-gold: #b8933f;
-  --color-border: #e8dcc7;
+  /* Surface: moss on wet stone, forest floor at dusk */
+  --bg: oklch(0.16 0.014 145);
+  --surface: oklch(0.21 0.018 145);
+  --surface-hi: oklch(0.26 0.02 145);
+  --moss: oklch(0.3 0.096 140);
+  --lichen: oklch(0.86 0.09 135);
+  --ink: oklch(0.96 0.008 140);
+  --ink-muted: oklch(0.68 0.02 140);
+  --line: oklch(0.3 0.012 145);
 
-  --text-hero: clamp(3rem, 2rem + 4vw, 6.5rem);
-  --text-display: clamp(2rem, 1.5rem + 2vw, 3.25rem);
-  --text-lg: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
-  --text-base: clamp(1rem, 0.95rem + 0.2vw, 1.0625rem);
+  /* Type scale, ratio >= 1.25, display ceiling 6rem */
+  --text-display: clamp(2.75rem, 1.9rem + 4.2vw, 6rem);
+  --text-title: clamp(1.9rem, 1.5rem + 2vw, 3.25rem);
+  --text-lead: clamp(1.125rem, 1.05rem + 0.4vw, 1.375rem);
+  --text-body: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
+  --text-meta: 0.8125rem;
 
-  --space-section: clamp(4rem, 3rem + 5vw, 8rem);
+  /* Rhythm: generous between movements, tight within them */
+  --space-movement: clamp(5rem, 3.5rem + 7vw, 11rem);
+  --space-gutter: clamp(1.25rem, 0.8rem + 2.2vw, 3.5rem);
 
-  --duration-normal: 300ms;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-quick: 200ms;
+  --duration-slow: 900ms;
+
+  /* Semantic stacking order, never arbitrary values */
+  --z-sticky: 100;
+  --z-overlay: 200;
+  --z-modal: 300;
 }
 
 @theme inline {
-  --color-cream: var(--color-cream);
-  --color-surface: var(--color-surface);
-  --color-ink: var(--color-ink);
-  --color-ink-soft: var(--color-ink-soft);
-  --color-terracotta: var(--color-terracotta);
-  --color-terracotta-soft: var(--color-terracotta-soft);
-  --color-rose: var(--color-rose);
-  --color-gold: var(--color-gold);
-  --color-border: var(--color-border);
-  --font-display: var(--font-fraunces);
-  --font-sans: var(--font-inter);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-hi: var(--surface-hi);
+  --color-moss: var(--moss);
+  --color-lichen: var(--lichen);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --font-serif: var(--font-spectral);
+  --font-sans: var(--font-archivo);
+}
+
+html {
+  background-color: var(--bg);
 }
 
 body {
-  background-color: var(--color-cream);
-  color: var(--color-ink);
+  background-color: var(--bg);
+  color: var(--ink);
   font-family: var(--font-sans);
-  background-image:
-    radial-gradient(circle at 15% 8%, rgba(184, 72, 31, 0.05), transparent 45%),
-    radial-gradient(circle at 85% 20%, rgba(184, 147, 63, 0.06), transparent 40%);
+  font-size: var(--text-body);
+  /* Light type on dark reads lighter; it needs the extra air */
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
 }
 
 ::selection {
-  background-color: var(--color-terracotta);
-  color: var(--color-surface);
+  background-color: var(--lichen);
+  color: var(--bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--lichen);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+}
+
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
+/* Animations end at the element's natural state, so a renderer that
+   skips them still shows a complete page. */
+.rise {
+  animation: rise var(--duration-slow) var(--ease-out-expo) backwards;
+}
+
+.settle {
+  animation: settle 1.4s var(--ease-out-expo) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

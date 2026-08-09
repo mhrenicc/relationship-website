@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { StubPage } from "@/components/StubPage";
+import { SectionShell } from "@/components/SectionShell";
 
-export const metadata: Metadata = { title: "Us — Gallery" };
+export const metadata: Metadata = { title: "Gallery · Us" };
 
 export default function GalleryPage() {
   return (
-    <StubPage
-      eyebrow="Photos"
+    <SectionShell
       title="Gallery"
-      description="Our photo wall is going here. Coming soon."
+      intro="The photographs worth keeping, not all of them."
+      awaiting="Empty for now. This works better with thirty good photographs than three hundred ordinary ones."
     />
   );
 }
