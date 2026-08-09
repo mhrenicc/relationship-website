@@ -29,13 +29,17 @@ Success at reveal: she is quiet for a second before she says anything. Success a
 
 ## Brand Personality
 
-**Intimate, cinematic, understated.**
+**Intimate, playful, unmistakably theirs.**
 
-Voice: specific, never sentimental. It names the actual place, the actual date, the actual dumb thing that happened. It does not describe feelings the photo already shows. If a line could appear on a greeting card, it is wrong.
+> Revised after the first build read as a gallery. "Understated" was taken too literally and produced a museum: beautiful, reverent, and cold. A museum is about other people's things. This is about theirs, and they are allowed to be funny in it.
 
-Restraint is the point. The site is confident enough to leave space, to not decorate, to let a photograph carry a full screen without a caption apologizing for it. Understatement reads as care; decoration reads as trying.
+Voice: specific, dry, never sentimental. It names the actual place, the actual date, the actual dumb argument. It does not describe feelings the photo already shows. If a line could appear on a greeting card, it is wrong. If a line would make her snort, it is right.
 
-There is room for humor, but it is dry and specific to them, never a bit performed for an audience. There is no audience.
+The humour is theirs, not performed. Inside jokes, petty tallies, things only the two of them would find funny. There is no audience, so nothing needs explaining.
+
+Playful means **physical**, not decorated. Photographs behave like objects: they stack, tilt, and get shuffled through, because that is what photographs do on a table. It never means hearts, doodles, or novelty fonts. The line: a pile of snapshots you flick through is playful, a scrapbook sticker is twee.
+
+Restraint still governs the interface. The site stays quiet so the content can be loud.
 
 ## Anti-references
 

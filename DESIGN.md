@@ -81,6 +81,48 @@ One well-orchestrated reveal beats scattered micro-interactions.
 - Ease-out expo. No bounce, no elastic.
 - `prefers-reduced-motion` is honored everywhere, with a crossfade or instant fallback.
 
+## Depth
+
+Surfaces sit on one of three planes. Nothing floats without a reason, and nothing shares a plane by accident.
+
+| Plane | Surface | Used for |
+|---|---|---|
+| Base | `--bg` | The page itself. |
+| Raised | `--surface` | Inputs, strips, anything the eye should read as sitting on top. |
+| Floating | `--surface-hi` + shadow | Only what genuinely lifts: hover states, an active card in a stack. |
+
+On a near-black background a pure-black shadow is invisible, so elevation cannot be faked the usual way. Depth comes from three things instead: a lighter surface step, a hairline in `--line`, and a shadow tinted toward the palette's own hue rather than neutral black. Flat one-step shadows (`shadow-md` and friends) are banned; if a shadow is used it is layered, low-opacity, and tinted.
+
+## Interactive states
+
+Every clickable or focusable element ships **hover, focus-visible, and active**. All three, no exceptions. A control with only a hover state is unfinished, and focus-visible is not optional because the whole site is keyboard-reachable.
+
+- `:focus-visible` uses the `--lichen` ring defined in `globals.css`. Never remove an outline without replacing it.
+- Active states must be visible on touch, where hover does not exist.
+
+## Motion properties
+
+Name the properties being animated. **`transition-all` is banned** — it animates layout and paint properties by accident and is the usual cause of janky hover states.
+
+Animate `transform` and `opacity` by default. `clip-path`, `filter`, `backdrop-filter`, and tinted shadow are permitted when they materially improve the effect and stay smooth. Never animate `width`, `height`, `top`, `left`, `margin`, `padding`, or `font-size`.
+
+## Color and spacing discipline
+
+- **No default framework palette colors.** No `blue-600`, no `indigo-500`, no stock Tailwind ramp. Every color resolves to a token in this file.
+- **No arbitrary spacing.** Values come from `--space-*` tokens or the fluid `clamp()` scale. Random step-picking is what makes a layout feel assembled rather than composed.
+
+## Existing assets first
+
+Before inventing anything visual, check what the project already has: `public/photos/`, any logo or brand file, the tokens in `globals.css`. Real assets always beat generated stand-ins, and invented brand colors are never acceptable when defined ones exist.
+
+## Visual verification
+
+Design work is not done when it compiles. Render it, look at it, compare it against the intent, fix what is wrong, and look again. At least two passes.
+
+Be specific when comparing: "heading is 46px, should read closer to 40px at this width", not "spacing feels off". Check spacing, type size and line-height, exact colors, alignment, radius, shadow, and image cropping.
+
+When screenshots are unavailable, say so plainly and verify what can be verified computationally (contrast ratios, computed styles, overflow, load state) rather than claiming a visual check that did not happen.
+
 ## Components
 
 - **Gate** (`/login`): a single centered field on near-black. No logo lockup, no card, no explanation. It should feel like a door, not a form.

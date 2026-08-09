@@ -3,6 +3,12 @@ export type Photo = {
   alt: string;
 };
 
+export type Moment = Photo & {
+  /** ISO date. Drives the label and the ordering of the timeline strip. */
+  date: string;
+  caption: string;
+};
+
 export const siteConfig = {
   partnerOne: "Marko",
   partnerTwo: "Partner",
@@ -10,40 +16,104 @@ export const siteConfig = {
 };
 
 /**
- * Placeholder photography. Replace the files in `public/photos/` with real
- * ones and rewrite the alt text; nothing else needs to change.
+ * Everything below is placeholder content. Replace the files in
+ * `public/photos/` and rewrite the text; no component needs to change.
  */
+
 export const heroPhoto: Photo = {
   src: "/photos/hero.jpg",
   alt: "Replace with the photograph that should open the site.",
 };
+
+/** The pool the shuffle draws from. Add as many as you like. */
+export const memoryPool: Photo[] = [
+  { src: "/photos/one.jpg", alt: "Replace with a photograph you both like." },
+  { src: "/photos/four.jpg", alt: "Replace with a photograph you both like." },
+  { src: "/photos/five.jpg", alt: "Replace with a photograph you both like." },
+  { src: "/photos/six.jpg", alt: "Replace with a photograph you both like." },
+  { src: "/photos/seven.jpg", alt: "Replace with a photograph you both like." },
+  { src: "/photos/eight.jpg", alt: "Replace with a photograph you both like." },
+  { src: "/photos/nine.jpg", alt: "Replace with a photograph you both like." },
+];
+
+/** Newest last. The strip reverses this so the most recent reads first. */
+export const moments: Moment[] = [
+  {
+    date: "2024-02-14",
+    caption: "The first proper trip",
+    src: "/photos/two.jpg",
+    alt: "Replace with a photograph from an early trip.",
+  },
+  {
+    date: "2024-06-02",
+    caption: "That week it did not stop raining",
+    src: "/photos/three.jpg",
+    alt: "Replace with a photograph from a rainy week away.",
+  },
+  {
+    date: "2024-09-19",
+    caption: "The long drive back",
+    src: "/photos/ten.jpg",
+    alt: "Replace with a photograph from a long drive home.",
+  },
+  {
+    date: "2025-01-08",
+    caption: "Cold, and worth it",
+    src: "/photos/six.jpg",
+    alt: "Replace with a photograph from a cold day out.",
+  },
+  {
+    date: "2025-05-30",
+    caption: "Nothing planned, best day of the month",
+    src: "/photos/nine.jpg",
+    alt: "Replace with a photograph from an unplanned day.",
+  },
+];
+
+export type TallyEntry = {
+  count: number;
+  label: string;
+};
+
+/**
+ * The petty running score. This is where the site stops being a gallery,
+ * so keep it specific and slightly unfair. Vague entries are not funny.
+ */
+export const tallies: TallyEntry[] = [
+  { count: 14, label: "arguments about directions, neither of us won" },
+  { count: 9, label: "times we agreed to leave early" },
+  { count: 3, label: "umbrellas lost, all of them mine" },
+  { count: 41, label: "times you were not hungry, then ate mine" },
+  { count: 2, label: "trains missed by under a minute" },
+  { count: 118, label: "photos of you refusing to be photographed" },
+];
+
+/** Place names for the marquee. Keep them short; they scroll. */
+export const places = [
+  "Rovinj",
+  "Vienna",
+  "Plitvice",
+  "Trieste",
+  "Zadar",
+  "Ljubljana",
+  "Budapest",
+  "Split",
+];
 
 export const sections = [
   {
     href: "/timeline",
     title: "Timeline",
     blurb: "Everything that happened, in the order it happened.",
-    photo: {
-      src: "/photos/one.jpg",
-      alt: "Replace with a photograph from an early milestone.",
-    },
   },
   {
     href: "/gallery",
     title: "Gallery",
     blurb: "The photographs worth keeping, not all of them.",
-    photo: {
-      src: "/photos/two.jpg",
-      alt: "Replace with a favourite photograph of the two of you.",
-    },
   },
   {
     href: "/trips",
     title: "Trips",
     blurb: "Every place we went, and what it was actually like.",
-    photo: {
-      src: "/photos/three.jpg",
-      alt: "Replace with a photograph from a trip you took together.",
-    },
   },
 ] as const;

@@ -1,19 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
+import { LiveCounter } from "@/components/LiveCounter";
 import { Nav } from "@/components/Nav";
+import { PhotoStack } from "@/components/PhotoStack";
+import { PlacesMarquee } from "@/components/PlacesMarquee";
+import { Tally } from "@/components/Tally";
+import { TimelineStrip } from "@/components/TimelineStrip";
 import { daysTogether } from "@/lib/days-together";
-import { heroPhoto, sections, siteConfig } from "@/lib/site-config";
-
-/**
- * Photos are sized by significance rather than dropped into equal tiles.
- * An even grid would read as an Instagram feed, which is an explicit
- * anti-reference for this project.
- */
-const shapes = [
-  "sm:col-span-7 aspect-4/5",
-  "sm:col-span-5 sm:mt-32 aspect-3/4",
-  "sm:col-span-12 aspect-21/9",
-];
+import {
+  heroPhoto,
+  memoryPool,
+  moments,
+  places,
+  sections,
+  siteConfig,
+  tallies,
+} from "@/lib/site-config";
 
 export default function Home() {
   const days = daysTogether(siteConfig.togetherSince);
@@ -44,51 +46,65 @@ export default function Home() {
             <h1 className="max-w-[14ch] text-[length:var(--text-display)] text-[var(--color-ink)]">
               {siteConfig.partnerOne} and {siteConfig.partnerTwo}
             </h1>
-            <p className="mt-6 text-[length:var(--text-meta)] text-[var(--color-ink-muted)]">
-              {days.toLocaleString()} days, kept here
-            </p>
+            <div className="mt-6">
+              <LiveCounter
+                since={siteConfig.togetherSince}
+                initialDays={days}
+              />
+            </div>
           </div>
         </section>
 
-        <section
+        <div className="py-[var(--space-movement)]">
+          <TimelineStrip moments={moments} />
+        </div>
+
+        {/* A page of nothing but photographs gets monotonous. This breaks it. */}
+        <section className="px-[var(--space-gutter)] pb-[var(--space-movement)]">
+          <p className="max-w-[26ch] font-[family-name:var(--font-serif)] text-[length:var(--text-title)] font-light text-[var(--color-ink)]">
+            Most of this is deeply unremarkable.
+          </p>
+          <p className="mt-6 max-w-[52ch] text-[length:var(--text-lead)] text-[var(--color-ink-muted)]">
+            A Tuesday. A car park in the rain. An argument about directions that
+            neither of us won and both of us still bring up. It is all in here,
+            because that is most of what it actually was.
+          </p>
+        </section>
+
+        <section className="px-[var(--space-gutter)] pb-[var(--space-movement)]">
+          <PhotoStack photos={memoryPool} />
+        </section>
+
+        <section className="px-[var(--space-gutter)] pb-[var(--space-movement)]">
+          <Tally entries={tallies} />
+        </section>
+
+        <div className="pb-[var(--space-movement)]">
+          <PlacesMarquee places={places} />
+        </div>
+
+        <nav
           aria-label="Sections"
-          className="grid grid-cols-1 gap-[var(--space-gutter)] px-[var(--space-gutter)] py-[var(--space-movement)] sm:grid-cols-12"
+          className="border-t border-[var(--color-line)] px-[var(--space-gutter)]"
         >
-          {sections.map((section, index) => (
+          {sections.map((section) => (
             <Link
               key={section.href}
               href={section.href}
-              className={`group relative block overflow-hidden ${shapes[index]}`}
+              className="group flex flex-col gap-2 border-b border-[var(--color-line)] py-8 transition-[padding-left,background-color] duration-[var(--duration-quick)] ease-[var(--ease-out-expo)] hover:bg-[var(--color-surface)] hover:pl-4 focus-visible:bg-[var(--color-surface)] active:bg-[var(--color-surface-hi)] sm:flex-row sm:items-baseline sm:justify-between sm:gap-8"
             >
-              {/* Eager: these three are the primary navigation, not incidental
-                  decoration, so they must not pop in after the fold. */}
-              <Image
-                src={section.photo.src}
-                alt={section.photo.alt}
-                fill
-                loading="eager"
-                sizes="(max-width: 640px) 100vw, 60vw"
-                className="object-cover transition-transform duration-[1.2s] ease-[var(--ease-out-expo)] group-hover:scale-[1.04]"
-              />
-              <div
-                aria-hidden
-                className="absolute inset-0 bg-gradient-to-t from-[var(--bg)]/90 via-transparent to-transparent"
-              />
-
-              <div className="absolute inset-x-0 bottom-0 p-[clamp(1.25rem,1rem+1.5vw,2.5rem)]">
-                <h2 className="text-[length:var(--text-title)] text-[var(--color-ink)]">
-                  {section.title}
-                </h2>
-                <p className="mt-2 max-w-[38ch] text-[length:var(--text-meta)] text-[var(--color-ink-muted)] transition-colors duration-[var(--duration-quick)] group-hover:text-[var(--color-ink)]">
-                  {section.blurb}
-                </p>
-              </div>
+              <h2 className="text-[length:var(--text-title)] text-[var(--color-ink)]">
+                {section.title}
+              </h2>
+              <p className="max-w-[44ch] text-[length:var(--text-meta)] text-[var(--color-ink-muted)] transition-colors duration-[var(--duration-quick)] group-hover:text-[var(--color-ink)] sm:text-right">
+                {section.blurb}
+              </p>
             </Link>
           ))}
-        </section>
+        </nav>
       </main>
 
-      <footer className="px-[var(--space-gutter)] pb-10 text-[length:var(--text-meta)] text-[var(--color-ink-muted)]">
+      <footer className="px-[var(--space-gutter)] py-12 text-[length:var(--text-meta)] text-[var(--color-ink-muted)]">
         Ours, and nobody else&rsquo;s.
       </footer>
     </>

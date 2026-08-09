@@ -108,6 +108,33 @@ p {
   animation: settle 1.4s var(--ease-out-expo) backwards;
 }
 
+@keyframes marquee-drift {
+  to {
+    /* -50% lands exactly one duplicated copy along, so the loop is seamless */
+    transform: translateX(-50%);
+  }
+}
+
+.marquee__track {
+  animation: marquee-drift 38s linear infinite;
+}
+
+.marquee:hover .marquee__track,
+.marquee:focus-visible .marquee__track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Static and readable rather than scrolling */
+  .marquee {
+    overflow-x: auto;
+  }
+
+  .marquee__track {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
