@@ -9,6 +9,7 @@ export default function TripsPage() {
       title="Trips"
       intro="Every place we went, and what it was actually like."
       awaiting="No trips logged yet. Start with the one you both still bring up."
+      tint="coral"
     />
   );
 }

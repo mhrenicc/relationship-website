@@ -40,11 +40,19 @@ because the browser request does carry the cookie.
 This is fine for a handful of photos. Once there are hundreds, the fix is an authenticated image
 route that checks the session and streams a resized file, rather than opening up `public/`.
 
-## Design
+## Start here
 
-[`PRODUCT.md`](PRODUCT.md) holds strategy (who it's for, voice, anti-references) and
-[`DESIGN.md`](DESIGN.md) holds the visual system (palette with verified contrast ratios,
-typography, motion rules). Read both before changing how anything looks.
+This is a **prototype**. Read the docs before the code, in this order:
+
+1. **[`DECISIONS.md`](DECISIONS.md)** — what Marko actually decided, including three reversals
+   and the pattern behind them. Authoritative.
+2. **[`SPEC.md`](SPEC.md)** — current state: what works, what is unverified, what is broken,
+   and the open questions.
+3. **[`PRODUCT.md`](PRODUCT.md)** — users, purpose, voice, anti-references. Proposed, not decided.
+4. **[`DESIGN.md`](DESIGN.md)** — the visual system and its measured contrast ratios. Proposed.
+
+Two things to know immediately: **uploads have never successfully saved**, and **nothing has
+ever been verified visually** because the screenshot tooling failed throughout. See `SPEC.md`.
 
 ## Notes
 

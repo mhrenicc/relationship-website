@@ -70,24 +70,6 @@ export const moments: Moment[] = [
   },
 ];
 
-export type TallyEntry = {
-  count: number;
-  label: string;
-};
-
-/**
- * The petty running score. This is where the site stops being a gallery,
- * so keep it specific and slightly unfair. Vague entries are not funny.
- */
-export const tallies: TallyEntry[] = [
-  { count: 14, label: "arguments about directions, neither of us won" },
-  { count: 9, label: "times we agreed to leave early" },
-  { count: 3, label: "umbrellas lost, all of them mine" },
-  { count: 41, label: "times you were not hungry, then ate mine" },
-  { count: 2, label: "trains missed by under a minute" },
-  { count: 118, label: "photos of you refusing to be photographed" },
-];
-
 /** Place names for the marquee. Keep them short; they scroll. */
 export const places = [
   "Rovinj",

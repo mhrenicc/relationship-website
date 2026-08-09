@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
-import { Archivo, Spectral } from "next/font/google";
+import { Archivo, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 
-const spectral = Spectral({
-  variable: "--font-spectral",
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
   subsets: ["latin"],
-  weight: ["200", "300", "400"],
-  style: ["normal", "italic"],
 });
 
 const archivo = Archivo({
@@ -24,7 +22,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${spectral.variable} ${archivo.variable} h-full antialiased`}
+      className={`${bricolage.variable} ${archivo.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">{children}</body>
     </html>

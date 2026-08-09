@@ -1,34 +1,35 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { LiveCounter } from "@/components/LiveCounter";
 import { Nav } from "@/components/Nav";
 import { PhotoStack } from "@/components/PhotoStack";
 import { PlacesMarquee } from "@/components/PlacesMarquee";
-import { Tally } from "@/components/Tally";
 import { TimelineStrip } from "@/components/TimelineStrip";
 import { daysTogether } from "@/lib/days-together";
+import { getMoments } from "@/lib/moments";
 import {
   heroPhoto,
   memoryPool,
-  moments,
   places,
   sections,
   siteConfig,
-  tallies,
 } from "@/lib/site-config";
 
-export default function Home() {
+const TINTS = ["violet", "rose", "coral"] as const;
+
+export default async function Home() {
   const days = daysTogether(siteConfig.togetherSince);
+  const { moments } = await getMoments();
 
   return (
     <>
       <header className="absolute inset-x-0 top-0 z-[var(--z-sticky)]">
-        <Nav />
+        <Nav onDark />
       </header>
 
       <main className="flex flex-1 flex-col">
-        {/* The photograph is the design; the interface stays out of its way */}
-        <section className="relative flex min-h-screen flex-col justify-end overflow-hidden">
+        <section className="relative flex min-h-[88vh] flex-col justify-end overflow-hidden">
           <Image
             src={heroPhoto.src}
             alt={heroPhoto.alt}
@@ -37,66 +38,76 @@ export default function Home() {
             sizes="100vw"
             className="settle object-cover"
           />
+          {/* Top stays dark for the nav; the base melts into the page colour */}
           <div
             aria-hidden
-            className="absolute inset-0 bg-gradient-to-t from-[var(--bg)] via-[var(--bg)]/40 to-[var(--bg)]/70"
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(to bottom, oklch(0.2 0.04 320 / 0.6), oklch(0.2 0.04 320 / 0.15) 38%, oklch(0.2 0.04 320 / 0.55) 72%, var(--paper))",
+            }}
           />
 
-          <div className="rise relative px-[var(--space-gutter)] pb-[clamp(3rem,2rem+5vw,7rem)]">
-            <h1 className="max-w-[14ch] text-[length:var(--text-display)] text-[var(--color-ink)]">
+          <div className="rise relative px-[var(--space-gutter)] pb-[clamp(3rem,2rem+5vw,6rem)]">
+            <h1 className="max-w-[14ch] text-[length:var(--text-display)] text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.35)]">
               {siteConfig.partnerOne} and {siteConfig.partnerTwo}
             </h1>
-            <div className="mt-6">
-              <LiveCounter
-                since={siteConfig.togetherSince}
-                initialDays={days}
-              />
+            <div className="mt-6 inline-block rounded-full bg-white/95 px-5 py-2.5 shadow-[var(--shadow-soft)] backdrop-blur-sm">
+              <LiveCounter since={siteConfig.togetherSince} initialDays={days} />
             </div>
           </div>
         </section>
 
-        <div className="py-[var(--space-movement)]">
+        <div className="pb-[var(--space-movement)] pt-[clamp(3rem,2rem+4vw,6rem)]">
           <TimelineStrip moments={moments} />
         </div>
 
         {/* A page of nothing but photographs gets monotonous. This breaks it. */}
-        <section className="px-[var(--space-gutter)] pb-[var(--space-movement)]">
-          <p className="max-w-[26ch] font-[family-name:var(--font-serif)] text-[length:var(--text-title)] font-light text-[var(--color-ink)]">
+        <section
+          style={{ "--wash-tint": "var(--wash-violet)" } as CSSProperties}
+          className="wash px-[var(--space-gutter)] py-[clamp(4rem,3rem+5vw,7rem)]"
+        >
+          <p className="max-w-[18ch] font-[family-name:var(--font-display)] text-[length:var(--text-display)] font-semibold leading-[0.98]">
             Most of this is deeply unremarkable.
           </p>
-          <p className="mt-6 max-w-[52ch] text-[length:var(--text-lead)] text-[var(--color-ink-muted)]">
+          <p className="mt-8 max-w-[52ch] text-[length:var(--text-lead)] text-[var(--color-ink-soft)]">
             A Tuesday. A car park in the rain. An argument about directions that
             neither of us won and both of us still bring up. It is all in here,
             because that is most of what it actually was.
           </p>
         </section>
 
-        <section className="px-[var(--space-gutter)] pb-[var(--space-movement)]">
+        <section className="px-[var(--space-gutter)] py-[var(--space-movement)]">
           <PhotoStack photos={memoryPool} />
         </section>
 
-        <section className="px-[var(--space-gutter)] pb-[var(--space-movement)]">
-          <Tally entries={tallies} />
-        </section>
-
-        <div className="pb-[var(--space-movement)]">
-          <PlacesMarquee places={places} />
-        </div>
+        <PlacesMarquee places={places} />
 
         <nav
           aria-label="Sections"
-          className="border-t border-[var(--color-line)] px-[var(--space-gutter)]"
+          className="grid gap-6 px-[var(--space-gutter)] py-[var(--space-movement)] sm:grid-cols-3"
         >
-          {sections.map((section) => (
+          {sections.map((section, index) => (
             <Link
               key={section.href}
               href={section.href}
-              className="group flex flex-col gap-2 border-b border-[var(--color-line)] py-8 transition-[padding-left,background-color] duration-[var(--duration-quick)] ease-[var(--ease-out-expo)] hover:bg-[var(--color-surface)] hover:pl-4 focus-visible:bg-[var(--color-surface)] active:bg-[var(--color-surface-hi)] sm:flex-row sm:items-baseline sm:justify-between sm:gap-8"
+              style={
+                {
+                  "--wash-tint": `var(--wash-${TINTS[index % TINTS.length]})`,
+                } as CSSProperties
+              }
+              className="group rounded-[var(--radius-lg)] bg-[var(--wash-tint)] p-8 shadow-[var(--shadow-soft)] transition-[transform,box-shadow] duration-[var(--duration-quick)] ease-[var(--ease-out-expo)] hover:-translate-y-1 hover:shadow-[var(--shadow-lift)]"
             >
-              <h2 className="text-[length:var(--text-title)] text-[var(--color-ink)]">
+              <h2 className="text-[length:var(--text-title)]">
                 {section.title}
+                <span
+                  aria-hidden
+                  className="ml-2 inline-block text-[var(--color-rose)] transition-transform duration-[var(--duration-quick)] ease-[var(--ease-out-expo)] group-hover:translate-x-1.5"
+                >
+                  &rarr;
+                </span>
               </h2>
-              <p className="max-w-[44ch] text-[length:var(--text-meta)] text-[var(--color-ink-muted)] transition-colors duration-[var(--duration-quick)] group-hover:text-[var(--color-ink)] sm:text-right">
+              <p className="mt-3 max-w-[34ch] text-[var(--color-ink-soft)]">
                 {section.blurb}
               </p>
             </Link>
@@ -104,8 +115,14 @@ export default function Home() {
         </nav>
       </main>
 
-      <footer className="px-[var(--space-gutter)] py-12 text-[length:var(--text-meta)] text-[var(--color-ink-muted)]">
-        Ours, and nobody else&rsquo;s.
+      <footer className="flex flex-wrap items-center justify-between gap-4 px-[var(--space-gutter)] pb-12 text-[var(--color-ink-soft)]">
+        <span>Ours, and nobody else&rsquo;s.</span>
+        <Link
+          href="/add"
+          className="font-medium text-[var(--color-rose)] underline-offset-4 transition-colors duration-[var(--duration-quick)] hover:text-[var(--color-violet)] hover:underline"
+        >
+          Add something
+        </Link>
       </footer>
     </>
   );
