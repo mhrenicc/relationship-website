@@ -42,3 +42,6 @@ yarn-error.log*
 next-env.d.ts
 data/
 public/photos/uploads/
+
+# Claude local-only settings
+.claude/settings.local.json
