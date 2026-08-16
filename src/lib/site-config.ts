@@ -84,11 +84,6 @@ export const places = [
 
 export const sections = [
   {
-    href: "/timeline",
-    title: "Timeline",
-    blurb: "Everything that happened, in the order it happened.",
-  },
-  {
     href: "/gallery",
     title: "Gallery",
     blurb: "The photographs worth keeping, not all of them.",

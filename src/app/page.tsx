@@ -7,10 +7,11 @@ import { PhotoStack } from "@/components/PhotoStack";
 import { PlacesMarquee } from "@/components/PlacesMarquee";
 import { TimelineStrip } from "@/components/TimelineStrip";
 import { daysTogether } from "@/lib/days-together";
-import { getMoments } from "@/lib/moments";
+import { getFeedSets } from "@/lib/moments";
 import {
   heroPhoto,
   memoryPool,
+  moments as placeholderMoments,
   places,
   sections,
   siteConfig,
@@ -20,7 +21,19 @@ const TINTS = ["violet", "rose", "coral"] as const;
 
 export default async function Home() {
   const days = daysTogether(siteConfig.togetherSince);
-  const { moments } = await getMoments();
+  const { sets, isPlaceholder } = await getFeedSets();
+
+  // Adapter, not the destination. The homepage is being rebuilt around the
+  // set feed; until that lands, the existing strip is fed a set's lead
+  // photograph so real uploads are visible.
+  const moments = isPlaceholder
+    ? placeholderMoments
+    : sets.map((set) => ({
+        src: set.photos[0].urls.display,
+        alt: set.photos[0].alt || set.caption,
+        date: set.date,
+        caption: set.caption,
+      }));
 
   return (
     <>

@@ -12,4 +12,14 @@ export function getPhotoStore(): PhotoStore {
   return process.env.BLOB_READ_WRITE_TOKEN ? blobStore : localStore;
 }
 
-export type { StoredMoment } from "./types";
+export type {
+  Author,
+  Collection,
+  CollectionShape,
+  StoredList,
+  StoredMilestone,
+  StoredPhoto,
+  StoredPlace,
+  StoredSet,
+  StoredTrip,
+} from "./types";
