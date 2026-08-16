@@ -33,8 +33,11 @@ export async function addSet(_prev: AddState, formData: FormData): Promise<AddSt
   const date = String(formData.get("date") ?? "").trim();
   const addedByRaw = String(formData.get("addedBy") ?? "").trim() as Author;
   const tripId = String(formData.get("tripId") ?? "").trim();
-  // Unticking is the deliberate act; siloing trip content is the failure mode.
-  const inFeed = formData.get("inFeed") !== "off";
+  // No picker rendered at all -> default true. Picker rendered -> the hidden
+  // "off" is always sent, and "on" only when actually ticked. Siloing trip
+  // content is the failure mode, so unticking has to be a deliberate act.
+  const feedValues = formData.getAll("inFeed").map(String);
+  const inFeed = feedValues.length === 0 ? true : feedValues.includes("on");
 
   if (files.length === 0) {
     return { error: "Pick at least one photo." };

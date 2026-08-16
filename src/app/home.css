@@ -347,3 +347,8 @@ footer a{color:var(--rose);font-weight:600;text-decoration:none}
   *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;
     transition-duration:0.01ms !important}
 }
+
+/* ============ shared empties ============ */
+.empty{color:var(--ink-soft);font-size:1.0625rem;max-width:44ch}
+.obj__empty{position:absolute;inset:0;display:grid;place-items:center;background:var(--bone-2);
+  color:var(--ink-soft);font-size:0.875rem;font-weight:600}

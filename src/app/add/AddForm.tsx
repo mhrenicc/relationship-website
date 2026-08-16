@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState, useSyncExternalStore } from "react";
+import type { StoredTrip } from "@/lib/storage";
 import { addSet, type AddState } from "./actions";
 
 const initialState: AddState = {};
@@ -130,7 +131,12 @@ function PostingAs() {
   );
 }
 
-export function AddForm() {
+type AddFormProps = {
+  trips: StoredTrip[];
+  preselectedTrip?: string;
+};
+
+export function AddForm({ trips, preselectedTrip }: AddFormProps) {
   const [state, formAction, isPending] = useActionState(
     addSet,
     initialState,
@@ -187,6 +193,35 @@ export function AddForm() {
             />
           </div>
         </div>
+
+        {trips.length > 0 && (
+          <div>
+            <label htmlFor="tripId" className={label}>
+              Part of a trip <span className="font-normal">(optional)</span>
+            </label>
+            <select
+              id="tripId"
+              name="tripId"
+              defaultValue={preselectedTrip ?? ""}
+              className={field}
+            >
+              <option value="">Not part of a trip</option>
+              {trips.map((trip) => (
+                <option key={trip.id} value={trip.id}>
+                  {trip.name}
+                </option>
+              ))}
+            </select>
+            <label className="mt-3 flex items-center gap-2 font-medium">
+              {/* An unticked checkbox sends nothing, which is indistinguishable
+                  from the picker not being rendered at all. The hidden field
+                  makes the difference explicit. */}
+              <input type="hidden" name="inFeed" value="off" />
+              <input type="checkbox" name="inFeed" defaultChecked value="on" />
+              Also show these in the main feed
+            </label>
+          </div>
+        )}
 
         <PostingAs />
 
