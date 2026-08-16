@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState, useTransition } from "react";
+import { addPlace, togglePlace, type PlaceState } from "@/app/places-actions";
 import type { StoredPlace } from "@/lib/storage";
 
 type Filter = "all" | "been" | "want";
@@ -9,12 +10,11 @@ type Filter = "all" | "been" | "want";
  * Hovering or tab-focusing an entry pulses its pin. The pins are rendered by
  * the server component alongside the map; this reaches them by data attribute
  * rather than lifting the whole map into the client.
- *
- * Marking a place visited needs a Server Action to persist, which lands with
- * the add flows — until then this filters and highlights only.
  */
 export function PlacesRail({ places }: { places: StoredPlace[] }) {
   const [filter, setFilter] = useState<Filter>("all");
+  const [pending, startTransition] = useTransition();
+  const [state, formAction] = useActionState<PlaceState, FormData>(addPlace, {});
 
   const shown = places.filter((place) =>
     filter === "all" ? true : (filter === "been") === place.been,
@@ -45,6 +45,13 @@ export function PlacesRail({ places }: { places: StoredPlace[] }) {
           <li key={place.id} className={place.been ? "been" : undefined}>
             <button
               type="button"
+              disabled={pending}
+              aria-label={
+                place.been
+                  ? `Mark ${place.name} as not visited`
+                  : `Mark ${place.name} as visited`
+              }
+              onClick={() => startTransition(() => void togglePlace(place.id))}
               onMouseEnter={() => highlight(place.id, true)}
               onMouseLeave={() => highlight(place.id, false)}
               onFocus={() => highlight(place.id, true)}
@@ -62,6 +69,17 @@ export function PlacesRail({ places }: { places: StoredPlace[] }) {
           </li>
         ))}
       </ul>
+
+      <form className="addplace" action={formAction}>
+        <input type="text" name="name" placeholder="Add a place…" aria-label="Add a place" />
+        <button type="submit">Add</button>
+      </form>
+
+      {state.error && (
+        <p role="alert" className="railerror">
+          {state.error}
+        </p>
+      )}
     </div>
   );
 }

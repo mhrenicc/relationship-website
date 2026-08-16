@@ -23,7 +23,7 @@ import "./home.css";
 
 export default async function Home() {
   const store = getPhotoStore();
-  const { sets: feedSets, isPlaceholder } = await getFeedSets();
+  const { sets: feedSets } = await getFeedSets();
   const { sets: allSets } = await getSets();
 
   const [storedTrips, storedLists, storedMilestones, storedPlaces] = await Promise.all([
@@ -33,23 +33,30 @@ export default async function Home() {
     store.read("places"),
   ]);
 
-  const sets = isPlaceholder ? placeholderSets : feedSets;
-  const trips = isPlaceholder ? placeholderTrips : storedTrips;
-  const lists = isPlaceholder ? placeholderLists : storedLists;
-  const milestones = isPlaceholder ? placeholderMilestones : storedMilestones;
-  const places = isPlaceholder ? placeholderPlaces : storedPlaces;
+  // Placeholder-ness is decided per collection, not globally. Adding the first
+  // real place while there are still no photographs must show that place —
+  // deciding it from sets alone made real content invisible.
+  const fallback = <T,>(stored: T[], placeholder: T[]) =>
+    stored.length > 0 ? stored : placeholder;
+
+  const sets = fallback(feedSets, placeholderSets);
+  const trips = fallback(storedTrips, placeholderTrips);
+  const lists = fallback(storedLists, placeholderLists);
+  const milestones = fallback(storedMilestones, placeholderMilestones);
+  const places = fallback(storedPlaces, placeholderPlaces);
 
   const days = daysTogether(siteConfig.togetherSince);
-  const photoCount = (isPlaceholder ? placeholderSets : allSets).reduce(
+  const photoCount = fallback(allSets, placeholderSets).reduce(
     (total, set) => total + set.photos.length,
     0,
   );
 
-  const lead = isPlaceholder ? placeholderHero : (sets[0]?.photos[0] ?? placeholderHero);
-  const heroPhoto = {
-    src: "urls" in lead ? lead.urls.display : lead.src,
-    alt: lead.alt,
-  };
+  // The newest set's lead photograph opens the site; the stock hero only
+  // stands in until something real exists.
+  const lead = sets[0]?.photos[0];
+  const heroPhoto = lead
+    ? { src: lead.urls.display, alt: lead.alt }
+    : { src: placeholderHero.src, alt: placeholderHero.alt };
 
   const meta = [
     `${photoCount} photograph${photoCount === 1 ? "" : "s"}`,

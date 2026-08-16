@@ -33,7 +33,6 @@ h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.0;letter-spaci
 p{text-wrap:pretty}
 img{display:block;max-width:100%}
 a{color:inherit}
-.eyebrow{font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:600}
 
 /* ============ NAV ============ */
 nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
@@ -250,6 +249,7 @@ section.places .more{color:var(--amber)}
   border-radius:0.55rem;padding:0.5rem 0.65rem;color:var(--ink);font:inherit;font-size:0.8125rem}
 .addplace input::placeholder{color:var(--ink-soft)}
 .addplace input:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.railerror{margin:0.6rem 0 0;font-size:0.8125rem;font-weight:600;color:oklch(0.45 0.19 25)}
 .addplace button{background:var(--violet);color:#fff;border:0;border-radius:0.55rem;padding:0.5rem 0.8rem;
   font:inherit;font-weight:700;font-size:0.8125rem;cursor:pointer}
 
