@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone view</title>
+<style>
+  body{margin:0;background:#1b1420;display:flex;gap:24px;padding:20px;font-family:system-ui;align-items:flex-start}
+  figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px}
+  figcaption{color:#e9dff0;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+  iframe{width:390px;height:844px;border:0;border-radius:20px;background:#fff;
+    box-shadow:0 20px 60px rgba(0,0,0,.5)}
+</style>
+</head>
+<body>
+  <figure><iframe id="a" src="v1.html?p=1" title="Top of page"></iframe><figcaption>Hero</figcaption></figure>
+  <figure><iframe id="b" src="v1.html?p=2" title="Trips"></iframe><figcaption>Trips</figcaption></figure>
+  <figure><iframe id="c" src="v1.html?p=3" title="Timeline"></iframe><figcaption>Timeline</figcaption></figure>
+  <figure><iframe id="d" src="v1.html?p=4" title="Lists"></iframe><figcaption>Lists</figcaption></figure>
+<script>
+  const targets = { b:'trips', c:'timeline', d:'lists' };
+  window.addEventListener('load', () => {
+    for (const [id, section] of Object.entries(targets)) {
+      const w = document.getElementById(id).contentWindow;
+      const el = w.document.getElementById(section);
+      w.scrollTo(0, el.offsetTop - 60);
+      if (w.update) w.update();
+    }
+  });
+</script>
+</body>
+</html>
