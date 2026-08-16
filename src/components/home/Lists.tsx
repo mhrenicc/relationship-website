@@ -1,0 +1,53 @@
+import Link from "next/link";
+import type { StoredList } from "@/lib/storage";
+
+const who = (id: "marko" | "partner") => (id === "marko" ? "Marko" : "Partner");
+
+/**
+ * The one deliberately saturated band on the page. Everything else sits on the
+ * single continuous surface; this is the loud note near the foot.
+ */
+export function Lists({ lists }: { lists: StoredList[] }) {
+  if (lists.length === 0) return null;
+
+  return (
+    <section className="lists pad" id="lists">
+      <div className="sechead">
+        <h2>Lists</h2>
+        <Link className="more" href="/lists">
+          All lists →
+        </Link>
+      </div>
+
+      <div className="listgrid">
+        {lists.slice(0, 2).map((list) => {
+          const done = list.items.filter((item) => item.done).length;
+
+          return (
+            <div className="list" key={list.id}>
+              <h3>{list.name}</h3>
+              <span className="count">
+                {done} of {list.items.length} done
+              </span>
+              <ul>
+                {list.items.slice(0, 4).map((item) => (
+                  <li key={item.id} className={item.done ? "done" : undefined}>
+                    {/* Presentational only — the real control lives on /lists */}
+                    <span className="box" aria-hidden="true">
+                      {item.done ? "✓" : ""}
+                    </span>
+                    <span className="txt">{item.text}</span>
+                    <span className="who">{who(item.addedBy)}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="addrow">
+                <Link href="/lists">Open the list →</Link>
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
