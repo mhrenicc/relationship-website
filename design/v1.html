@@ -28,7 +28,16 @@
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--bone);color:var(--ink);font-family:var(--sans);
+/* One surface for the whole document. Sections declare no background of their
+   own; colour is continuous rather than five slabs with softened joins. */
+body{margin:0;color:var(--ink);font-family:var(--sans);
+  background:linear-gradient(to bottom,
+    var(--bone) 0%,
+    color-mix(in oklab,var(--bone),var(--rose) 7%) 34%,
+    color-mix(in oklab,var(--bone),var(--coral) 9%) 62%,
+    color-mix(in oklab,var(--bone),var(--amber) 8%) 82%,
+    var(--bone-2) 100%);
+  background-attachment:fixed;
   font-size:clamp(1rem,0.97rem + 0.15vw,1.0625rem);line-height:1.65;-webkit-font-smoothing:antialiased}
 h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.0;letter-spacing:-0.035em;margin:0;text-wrap:balance}
 p{text-wrap:pretty}
@@ -103,80 +112,81 @@ section{position:relative;scroll-margin-top:4.5rem}
   border-bottom:2px solid currentColor;padding-bottom:2px;transition:opacity 200ms var(--ease)}
 .sechead .more:hover{opacity:0.7}
 .pad{padding:clamp(3.5rem,7vw,8rem) var(--gutter)}
+/* The map is an add-on to trips, not a section of its own. */
+.trips{padding-bottom:clamp(1.5rem,3vw,2.5rem)}
+.places--attached{padding-top:clamp(1.25rem,2.5vw,2rem)}
 /* 1px overlap: two adjacent gradient boxes otherwise antialias into a
    visible hairline at fractional device-pixel boundaries. */
-.lately,.trips,.places,.lists{margin-bottom:-1px}
 
-/* ============ LATELY — photo sets ============ */
-/* Each block ramps into the next over --blend, so neighbours share an edge
-   colour and no boundary reads as a cut. Content sits inside .pad, clear of
-   the ramp. */
-.lately{background:linear-gradient(to bottom,var(--bone) 0,var(--bone) calc(100% - var(--blend)),
-  color-mix(in oklab,var(--bone),var(--violet) 22%) calc(100% - var(--blend)*0.62),
-  color-mix(in oklab,var(--bone),var(--violet) 72%) calc(100% - var(--blend)*0.22),var(--violet) 100%)}
-.lately .more{color:var(--rose)}
-/* Deliberately uneven. Equal tiles in rows are the Instagram anti-reference;
-   spans and ratios are cycled so no two neighbours read the same weight. */
-.sets{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(1rem,2vw,1.75rem);align-items:start}
-/* Widths cycle by span, heights cycle independently, so the row keeps one
-   optical band while no two neighbours share a footprint. */
-.set:nth-child(1){grid-column:span 4;--h:clamp(15rem,26vw,23.75rem)}
-.set:nth-child(2){grid-column:span 3;--h:clamp(12rem,20vw,18.75rem);margin-top:clamp(1rem,3vw,2.75rem)}
-.set:nth-child(3){grid-column:span 2;--h:clamp(13rem,23vw,21.25rem)}
-.set:nth-child(4){grid-column:span 3;--h:clamp(11rem,19vw,17.5rem);margin-top:clamp(0.5rem,1.5vw,1.5rem)}
-@media (max-width:760px){
-  .set{grid-column:span 12 !important;margin-top:0 !important;--h:auto}
-  .set__stack{aspect-ratio:4/3}
-}
-.set{position:relative;text-decoration:none;display:block}
-/* These are spans inside an anchor: without display:block, aspect-ratio is inert. */
-.set__stack{display:block;position:relative;border-radius:0.75rem;overflow:hidden;height:var(--h);
+
+/* ============ SHARED MODULE VOCABULARY ============ */
+/* Every object that carries a photograph uses this: same radius, same pair of
+   soft shadows, caption below. Trips are the same card, larger. The map panel
+   takes the same treatment so it reads as a sibling rather than a widget. */
+.obj{display:block;position:relative;border-radius:0.75rem;overflow:hidden;
   box-shadow:0 2px 10px oklch(0.4 0.08 330 / 0.10),0 18px 40px oklch(0.4 0.08 330 / 0.12);
   transition:transform 420ms var(--ease),box-shadow 420ms var(--ease)}
-.set:hover .set__stack{transform:translateY(-6px);box-shadow:0 6px 18px oklch(0.4 0.08 330 / 0.14),0 30px 64px oklch(0.4 0.08 330 / 0.18)}
-.set__stack img{width:100%;height:100%;object-fit:cover;transition:transform 700ms var(--ease)}
-.set:hover .set__stack img{transform:scale(1.04)}
-.set__count{position:absolute;top:0.75rem;right:0.75rem;z-index:2;background:oklch(0.15 0.03 320 / 0.6);
-  backdrop-filter:blur(6px);color:#fff;font-size:0.75rem;font-weight:600;padding:0.3rem 0.7rem;border-radius:2rem}
-.set__body{display:block;padding-top:0.875rem}
-.set__body b{display:block;font-family:var(--display);font-size:1.125rem;font-weight:600;letter-spacing:-0.02em}
-.set__body span{color:var(--ink-soft);font-size:0.875rem}
-.set__by{color:var(--rose);font-weight:600}
+a.card:hover .obj,a.card:focus-visible .obj{transform:translateY(-6px);
+  box-shadow:0 6px 18px oklch(0.4 0.08 330 / 0.14),0 30px 64px oklch(0.4 0.08 330 / 0.18)}
+.obj img{width:100%;height:100%;object-fit:cover;transition:transform 700ms var(--ease)}
+a.card:hover .obj img{transform:scale(1.04)}
+.cap{display:block;padding-top:0.75rem}
+.cap b{display:block;font-family:var(--display);font-weight:600;letter-spacing:-0.02em;
+  font-size:clamp(1rem,0.95rem + 0.3vw,1.1875rem);line-height:1.2}
+.cap span{display:block;font-size:0.8125rem;color:var(--ink-soft);margin-top:0.15rem}
+.cap em{font-style:normal;color:var(--rose);font-weight:600}
+a.card{display:block;text-decoration:none;color:inherit}
+a.card:focus-visible{outline:3px solid var(--violet);outline-offset:5px;border-radius:0.9rem}
 
-/* ============ TRIPS — loud violet block, uneven cards ============ */
-.trips{background:linear-gradient(to bottom,var(--violet) 0,var(--violet) calc(100% - var(--blend)),
-  color-mix(in oklab,var(--violet),var(--rose) 22%) calc(100% - var(--blend)*0.62),
-  color-mix(in oklab,var(--violet),var(--rose) 72%) calc(100% - var(--blend)*0.22),var(--rose) 100%);color:#fff}
-.trips .more{color:var(--amber)}
-.tripgrid{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(1rem,2vw,1.75rem)}
-.trip{position:relative;border-radius:1rem;overflow:hidden;text-decoration:none;color:#fff;display:block;
+/* A quiet label instead of a section announcement. */
+.eyebrow2{font-size:0.75rem;letter-spacing:0.14em;text-transform:uppercase;font-weight:700;
+  color:var(--ink-soft);margin:0 0 clamp(1.25rem,2.5vw,2rem)}
+/* on the saturated band the label must invert */
+.lists .eyebrow2{color:oklch(1 0 0 / 0.8)}
+
+/* ============ FEED — shape follows content ============ */
+/* No heading, no "see all" beside it. Each entry's footprint is derived from
+   how many photographs it holds and which way the lead one faces, so the run
+   reshapes itself as the archive grows rather than repeating a fixed rhythm. */
+.feed{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(1rem,2.2vw,2rem);
+  grid-auto-flow:dense;align-items:start}
+.card{grid-column:span var(--span,4)}
+.card .obj{height:var(--h)}
+/* extra photographs peek out like a small pile, per "photos behave like objects" */
+.pile{position:absolute;left:0.7rem;bottom:0.7rem;display:flex;z-index:2}
+.pile img{width:clamp(2.25rem,4vw,3rem);aspect-ratio:1;border-radius:0.4rem;
+  border:2px solid oklch(1 0 0 / 0.92);box-shadow:0 3px 10px oklch(0.25 0.06 320 / 0.35);
   transition:transform 420ms var(--ease)}
-.trip:hover{transform:translateY(-5px)}
-.trip img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;
-  transition:transform 800ms var(--ease),filter 500ms var(--ease);filter:brightness(0.94) saturate(1.06)}
-.trip:hover img{transform:scale(1.05);filter:brightness(1) saturate(1.14)}
-/* Darken only the band the text sits in, so the photograph keeps its colour. */
-.trip::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
-  background:linear-gradient(to top, oklch(0.18 0.05 320 / 0.88) 0%, oklch(0.20 0.05 320 / 0.55) 22%, transparent 52%)}
-.trip__body{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:flex-end;
-  padding:clamp(1.25rem,2.2vw,2rem);text-shadow:0 1px 2px oklch(0.15 0.04 320 / 0.5)}
-.trip h3{font-size:clamp(1.5rem,1.1rem + 1.6vw,2.5rem);font-weight:800}
-.trip .places{margin:0.5rem 0 0;font-size:0.9375rem;opacity:0.9}
-.trip .dates{margin:0.25rem 0 0;font-size:0.8125rem;opacity:0.72;font-variant-numeric:tabular-nums}
-/* Heights are capped rather than derived from aspect, so a full-bleed grid
-   doesn't turn four trips into two screens of scrolling. */
-.trip--a{grid-column:span 7;height:clamp(14rem,23vw,21rem)}
-.trip--b{grid-column:span 5;height:clamp(16rem,27vw,25rem)}
-.trip--c{grid-column:span 5;height:clamp(13rem,21vw,19rem)}
-.trip--d{grid-column:span 7;height:clamp(15rem,25vw,22rem)}
-@media (max-width:760px){ .trip{grid-column:span 12 !important;height:clamp(12rem,52vw,17rem) !important} }
+.pile img:nth-child(2){margin-left:-0.6rem;transform:rotate(4deg)}
+.pile img:nth-child(3){margin-left:-0.6rem;transform:rotate(-3deg)}
+a.card:hover .pile img:nth-child(2){transform:rotate(7deg) translateY(-2px)}
+a.card:hover .pile img:nth-child(3){transform:rotate(-6deg) translateY(-2px)}
+.count{position:absolute;top:0.7rem;right:0.7rem;z-index:2;background:oklch(0.2 0.04 320 / 0.6);
+  backdrop-filter:blur(6px);color:#fff;font-size:0.75rem;font-weight:600;
+  padding:0.28rem 0.65rem;border-radius:2rem}
+.feedmore{grid-column:1 / -1;padding-top:clamp(0.5rem,2vw,1.5rem)}
+.feedmore a{color:var(--rose);font-weight:600;text-decoration:none;font-size:0.9375rem;
+  border-bottom:2px solid currentColor;padding-bottom:2px}
+.feedmore a:hover{opacity:0.7}
+@media (max-width:760px){
+  .card{grid-column:span 12 !important}
+  .card .obj{height:auto;aspect-ratio:4/3}
+}
 
+/* ============ TRIPS — the shared card, larger ============ */
+.trips{color:var(--ink)}
+.tripgrid{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(1rem,2.2vw,2rem);align-items:start}
+.trip{grid-column:span var(--span,6)}
+.trip .obj{height:var(--h)}
+.trip .cap b{font-size:clamp(1.25rem,1.05rem + 0.9vw,1.875rem);font-weight:800;letter-spacing:-0.03em}
+.trip .places{margin:0.3rem 0 0;font-size:0.9375rem;color:var(--ink-soft)}
+.trip .dates{margin:0.1rem 0 0;font-size:0.8125rem;color:var(--ink-soft);opacity:0.8;
+  font-variant-numeric:tabular-nums}
+@media (max-width:760px){ .trip{grid-column:span 12 !important} .trip .obj{height:auto;aspect-ratio:4/3} }
 
 /* ============ PLACES — world map + list rail ============ */
 /* section.places: the trip cards already use .places for their place list. */
-section.places{background:linear-gradient(to bottom,var(--rose) 0,var(--rose) calc(100% - var(--blend)),
-  color-mix(in oklab,var(--rose),var(--coral) 22%) calc(100% - var(--blend)*0.62),
-  color-mix(in oklab,var(--rose),var(--coral) 72%) calc(100% - var(--blend)*0.22),var(--coral) 100%);color:#fff}
+section.places{color:var(--ink)}
 section.places .more{color:var(--amber)}
 .placesgrid{display:grid;grid-template-columns:3fr 1fr;gap:clamp(1rem,2vw,1.75rem);align-items:stretch}
 .placesgrid > *{min-width:0}
@@ -210,10 +220,10 @@ section.places .more{color:var(--amber)}
   text-shadow:0 1px 2px oklch(1 0 0 / 0.9)}
 .pin.on b{opacity:1;transform:translateX(0)}
 
-.rail{display:flex;flex-direction:column;background:oklch(1 0 0 / 0.10);border:1px solid oklch(1 0 0 / 0.2);
+.rail{display:flex;flex-direction:column;background:oklch(1 0 0 / 0.66);border:1px solid oklch(0.86 0.02 340);color:var(--ink);
   border-radius:1rem;padding:clamp(1rem,1.6vw,1.4rem);backdrop-filter:blur(6px);min-height:0}
 .rail__top{display:flex;gap:0.5rem;margin-bottom:0.9rem;flex-wrap:wrap}
-.chip{background:transparent;border:1px solid oklch(1 0 0 / 0.35);color:#fff;font:inherit;font-size:0.75rem;
+.chip{background:transparent;border:1px solid oklch(0.78 0.03 340);color:var(--ink-soft);font:inherit;font-size:0.75rem;
   font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:0.3rem 0.7rem;border-radius:2rem;
   cursor:pointer;transition:background-color 200ms var(--ease),color 200ms var(--ease)}
 .chip[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);color:oklch(0.26 0.09 60)}
@@ -222,28 +232,28 @@ section.places .more{color:var(--amber)}
   /* Bounded so the rail ends level with the map instead of running past it. */
   max-height:clamp(12rem,29vw,23rem)}
 .rail li button{width:100%;display:flex;align-items:center;gap:0.6rem;background:transparent;border:0;
-  color:#fff;font:inherit;text-align:left;padding:0.45rem 0.5rem;border-radius:0.55rem;cursor:pointer;
+  color:var(--ink);font:inherit;text-align:left;padding:0.45rem 0.5rem;border-radius:0.55rem;cursor:pointer;
   transition:background-color 180ms var(--ease)}
-.rail li button:hover{background:oklch(1 0 0 / 0.12)}
+.rail li button:hover{background:oklch(0.55 0.15 30 / 0.10)}
 .rail li button:focus-visible{outline:3px solid var(--amber);outline-offset:-2px}
-.dot{flex:0 0 auto;width:0.6rem;height:0.6rem;border-radius:50%;border:2px solid #fff;box-sizing:border-box}
-.been .dot{background:var(--amber);border-color:var(--amber)}
+.dot{flex:0 0 auto;width:0.6rem;height:0.6rem;border-radius:50%;border:2px solid var(--ink-soft);box-sizing:border-box}
+.been .dot{background:oklch(0.62 0.19 42);border-color:oklch(0.62 0.19 42)}
 .nm{font-size:0.875rem;font-weight:600;line-height:1.3}
-.cty{display:block;font-size:0.6875rem;opacity:0.65;font-weight:500}
-.tick{margin-left:auto;font-size:0.75rem;opacity:0.55;font-weight:700}
-.been .tick{opacity:1;color:var(--amber)}
+.cty{display:block;font-size:0.6875rem;color:var(--ink-soft);font-weight:500}
+.tick{margin-left:auto;font-size:0.75rem;color:var(--ink-soft);font-weight:700}
+.been .tick{color:oklch(0.55 0.19 42)}
 .addplace{display:flex;gap:0.4rem;margin-top:0.8rem}
-.addplace input{flex:1;min-width:0;background:oklch(1 0 0 / 0.14);border:1px solid oklch(1 0 0 / 0.3);
-  border-radius:0.55rem;padding:0.5rem 0.65rem;color:#fff;font:inherit;font-size:0.8125rem}
-.addplace input::placeholder{color:oklch(1 0 0 / 0.6)}
+.addplace input{flex:1;min-width:0;background:oklch(1 0 0 / 0.85);border:1px solid oklch(0.82 0.03 340);
+  border-radius:0.55rem;padding:0.5rem 0.65rem;color:var(--ink);font:inherit;font-size:0.8125rem}
+.addplace input::placeholder{color:var(--ink-soft)}
 .addplace input:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
-.addplace button{background:#fff;color:var(--violet);border:0;border-radius:0.55rem;padding:0.5rem 0.8rem;
+.addplace button{background:var(--violet);color:#fff;border:0;border-radius:0.55rem;padding:0.5rem 0.8rem;
   font:inherit;font-weight:700;font-size:0.8125rem;cursor:pointer}
 
 /* ============ RIBBON — the whole history, as a footnote ============ */
 /* Deliberately not a section. It sits under everything, dimmed, and only
    resolves when you actually attend to it. */
-.ribbon{background:linear-gradient(to bottom,var(--bone),var(--bone-2));padding:clamp(3rem,6vw,6rem) 0 clamp(1.5rem,3vw,2.5rem)}
+.ribbon{background:none;padding:clamp(3rem,6vw,6rem) 0 clamp(1.5rem,3vw,2.5rem)}
 .ribbon__head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;
   padding:0 var(--gutter);margin-bottom:clamp(2.5rem,5vw,4rem);
   opacity:0.45;transition:opacity 500ms var(--ease)}
@@ -298,9 +308,8 @@ section.places .more{color:var(--amber)}
 .cap2--b{right:0;transform:translate(0.5rem,-50%);color:oklch(0.45 0.11 62)}
 
 /* ============ LISTS — coral block ============ */
-.lists{background:linear-gradient(to bottom,var(--coral) 0,var(--coral) calc(100% - var(--blend)),
-  color-mix(in oklab,var(--coral),var(--bone) 22%) calc(100% - var(--blend)*0.62),
-  color-mix(in oklab,var(--coral),var(--bone) 72%) calc(100% - var(--blend)*0.22),var(--bone) 100%);color:#fff}
+/* The one deliberate full-bleed colour moment on the page. */
+.lists{background:var(--coral);color:#fff}
 .lists .more{color:#fff}
 .listgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr));gap:clamp(1rem,2.2vw,2rem)}
 .list{background:oklch(1 0 0 / 0.12);border:1px solid oklch(1 0 0 / 0.22);border-radius:1rem;
@@ -326,7 +335,7 @@ section.places .more{color:var(--amber)}
 .list .addrow button:hover{transform:translateY(-1px)}
 
 /* ============ FOOTER ============ */
-footer{background:var(--bone-2);padding:clamp(2.5rem,5vw,4rem) var(--gutter);
+footer{background:none;padding:clamp(2.5rem,5vw,4rem) var(--gutter);
   display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-size:0.875rem;color:var(--ink-soft)}
 footer a{color:var(--rose);font-weight:600;text-decoration:none}
 
@@ -342,7 +351,7 @@ footer a{color:var(--rose);font-weight:600;text-decoration:none}
 <nav id="nav">
   <a class="wordmark" href="#" style="text-decoration:none">Us</a>
   <span class="navlinks">
-    <a href="#lately">Lately</a><a href="#trips">Trips</a><a href="#places">Places</a><a href="#lists">Lists</a>
+    <a href="#feed">Photos</a><a href="#trips">Trips</a><a href="#lists">Lists</a>
     <a class="add" href="#">Add</a>
   </span>
 </nav>
@@ -359,61 +368,46 @@ footer a{color:var(--rose);font-weight:600;text-decoration:none}
   <span class="scrollcue">Scroll</span>
 </header>
 
-<!-- LATELY -->
-<section class="lately pad" id="lately">
-  <div class="sechead">
-    <h2>Lately</h2>
-    <a class="more" href="#">Everything, in order →</a>
-  </div>
-  <div class="sets">
-    <a class="set" href="#">
-      <span class="set__stack"><span class="set__count">6 photos</span><img src="https://unsplash.com/photos/8c3zjKrkkBA/download?w=900" alt="Her arm around him, close, a ring just visible"></span>
-      <span class="set__body"><b>Nobody could park</b><span>2 Feb 2025 · added by <span class="set__by">Marko</span></span></span>
-    </a>
-    <a class="set" href="#">
-      <span class="set__stack"><span class="set__count">3 photos</span><img src="https://unsplash.com/photos/mL2B7wvsD38/download?w=900" alt="The two of them on a bench, city rooftops below"></span>
-      <span class="set__body"><b>The long way back</b><span>12 Feb 2025 · added by <span class="set__by">Partner</span></span></span>
-    </a>
-    <a class="set" href="#">
-      <span class="set__stack"><span class="set__count">1 photo</span><img src="https://unsplash.com/photos/99mN3NEGrMA/download?w=700" alt="Both of them walking the shoreline at sunset, holding hands"></span>
-      <span class="set__body"><b>Third coffee</b><span>28 Jan 2025 · added by <span class="set__by">Partner</span></span></span>
-    </a>
-    <a class="set" href="#">
-      <span class="set__stack"><span class="set__count">9 photos</span><img src="https://unsplash.com/photos/EdULZpOKsUE/download?w=900" alt="Sitting together above the city lights after dark"></span>
-      <span class="set__body"><b>Rained the whole time</b><span>6 Jan 2025 · added by <span class="set__by">Marko</span></span></span>
-    </a>
-  </div>
+<!-- FEED -->
+<section class="feedwrap pad" id="feed">
+  <div class="feed" id="feedgrid"></div>
 </section>
 
 <!-- TRIPS -->
 <section class="trips pad" id="trips">
-  <div class="sechead">
-    <h2>Trips</h2>
-    <a class="more" href="#">All four →</a>
-  </div>
+  <p class="eyebrow2">Trips</p>
   <div class="tripgrid">
-    <a class="trip trip--a" href="#"><img src="https://unsplash.com/photos/Aj6mvFNBXAA/download?w=1400" alt="">
-      <span class="trip__body"><h3>The one where we ran out of water</h3>
-        <p class="places">Zion · Page</p><p class="dates">14–21 Jul 2025 · 42 photos</p></span></a>
-    <a class="trip trip--b" href="#"><img src="https://unsplash.com/photos/qXcl3z7_AOc/download?w=1000" alt="">
-      <span class="trip__body"><h3>Nobody's idea of a rest</h3>
-        <p class="places">El Nido</p><p class="dates">3–5 Mar 2025 · 18 photos</p></span></a>
-    <a class="trip trip--c" href="#"><img src="https://unsplash.com/photos/loTTPqOed7c/download?w=1000" alt="">
-      <span class="trip__body"><h3>Both suitcases, one hand</h3>
-        <p class="places">Split</p><p class="dates">9–13 Oct 2024 · 27 photos</p></span></a>
-    <a class="trip trip--d" href="#"><img src="https://unsplash.com/photos/3DPaL6XDcZE/download?w=1400" alt="">
-      <span class="trip__body"><h3>The long detour</h3>
-        <p class="places">Merzouga</p><p class="dates">2–4 Feb 2024 · 11 photos</p></span></a>
+    <a class="card trip" href="#" style="--span:7;--h:clamp(14rem,23vw,21rem)">
+      <span class="obj"><img src="https://unsplash.com/photos/Aj6mvFNBXAA/download?w=1400" alt=""></span>
+      <span class="cap"><b>The one where we ran out of water</b>
+        <span class="places">Zion · Page</span>
+        <span class="dates">14–21 Jul 2025 · 42 photos</span></span>
+    </a>
+    <a class="card trip" href="#" style="--span:5;--h:clamp(16rem,27vw,25rem)">
+      <span class="obj"><img src="https://unsplash.com/photos/qXcl3z7_AOc/download?w=1000" alt=""></span>
+      <span class="cap"><b>Nobody's idea of a rest</b>
+        <span class="places">El Nido</span>
+        <span class="dates">3–5 Mar 2025 · 18 photos</span></span>
+    </a>
+    <a class="card trip" href="#" style="--span:5;--h:clamp(13rem,21vw,19rem)">
+      <span class="obj"><img src="https://unsplash.com/photos/loTTPqOed7c/download?w=1000" alt=""></span>
+      <span class="cap"><b>Both suitcases, one hand</b>
+        <span class="places">Split</span>
+        <span class="dates">9–13 Oct 2024 · 27 photos</span></span>
+    </a>
+    <a class="card trip" href="#" style="--span:7;--h:clamp(15rem,25vw,22rem)">
+      <span class="obj"><img src="https://unsplash.com/photos/3DPaL6XDcZE/download?w=1400" alt=""></span>
+      <span class="cap"><b>The long detour</b>
+        <span class="places">Merzouga</span>
+        <span class="dates">2–4 Feb 2024 · 11 photos</span></span>
+    </a>
   </div>
 </section>
 
 
 <!-- PLACES -->
-<section class="places pad" id="places">
-  <div class="sechead">
-    <h2>Places</h2>
-    <a class="more" href="#"><span id="placecount">—</span></a>
-  </div>
+<section class="places pad places--attached" id="places">
+  <p class="eyebrow2">Everywhere we have been · <span id="placecount">—</span></p>
   <div class="placesgrid">
     <div class="map" id="map">
       <svg id="mapsvg" viewBox="0 0 1040 520" role="img"
@@ -438,10 +432,7 @@ footer a{color:var(--rose);font-weight:600;text-decoration:none}
 
 <!-- LISTS -->
 <section class="lists pad" id="lists">
-  <div class="sechead">
-    <h2>Lists</h2>
-    <a class="more" href="#">All lists →</a>
-  </div>
+  <p class="eyebrow2">Lists</p>
   <div class="listgrid">
     <div class="list">
       <h3>Things to cook properly</h3><span class="count">1 of 3 done</span>
@@ -509,6 +500,60 @@ footer a{color:var(--rose);font-weight:600;text-decoration:none}
   onScroll();
 
 
+
+
+  // ---- Feed: photo sets only, newest first, shape follows content --------
+  // Footprint is a function of the set: how many photographs it holds and which
+  // way the lead one faces. Nothing here is hand-placed, so the run reshapes
+  // itself as the archive grows instead of repeating a designed rhythm.
+  const U2 = 'https://unsplash.com/photos/';
+  const sets = [
+    { t:'The long way back',  d:'2025-02-12', by:'Partner',
+      ph:['mL2B7wvsD38','EdULZpOKsUE','99mN3NEGrMA'], lead:'landscape' },
+    { t:'Third coffee',       d:'2025-01-28', by:'Partner',
+      ph:['8c3zjKrkkBA'], lead:'portrait' },
+    { t:'Nobody could park',  d:'2025-02-02', by:'Marko',
+      ph:['3DPaL6XDcZE','xSI-8hwyUzE','loTTPqOed7c','qXcl3z7_AOc','Aj6mvFNBXAA','EvcUtLF12XQ'],
+      lead:'landscape' },
+    { t:'Rained the whole time', d:'2025-01-06', by:'Marko',
+      ph:['EvcUtLF12XQ','Aj6mvFNBXAA'], lead:'landscape' },
+    { t:'You said it was close', d:'2024-11-19', by:'Partner',
+      ph:['xSI-8hwyUzE'], lead:'landscape' },
+    { t:'Both suitcases, one hand', d:'2024-10-11', by:'Marko',
+      ph:['loTTPqOed7c','3DPaL6XDcZE','qXcl3z7_AOc','mL2B7wvsD38'], lead:'landscape' }
+  ];
+
+  // span (of 12) and height, derived from the set itself
+  function footprint(set) {
+    const n = set.ph.length;
+    if (n >= 4)  return { span:7, h:'clamp(17rem,30vw,26rem)' };
+    if (n >= 2)  return { span:5, h:'clamp(14rem,23vw,20rem)' };
+    return set.lead === 'portrait'
+      ? { span:3, h:'clamp(15rem,26vw,23rem)' }
+      : { span:4, h:'clamp(11rem,18vw,16rem)' };
+  }
+
+  const feed = document.getElementById('feedgrid');
+  if (feed) {
+    const fmt = iso => new Date(iso).toLocaleDateString('en-GB',
+      { day:'numeric', month:'short', year:'numeric' });
+
+    feed.innerHTML = sets.map(set => {
+      const { span, h } = footprint(set);
+      const extra = set.ph.slice(1, 3);
+      return `<a class="card" href="#" style="--span:${span};--h:${h}">
+        <span class="obj">
+          ${set.ph.length > 1 ? `<span class="count">${set.ph.length} photos</span>` : ''}
+          <img src="${U2}${set.ph[0]}/download?w=1000" alt="${set.t}">
+          ${extra.length ? `<span class="pile">${extra.map(id =>
+            `<img src="${U2}${id}/download?w=200" alt="">`).join('')}</span>` : ''}
+        </span>
+        <span class="cap"><b>${set.t}</b>
+          <span>${fmt(set.d)} · added by <em>${set.by}</em></span></span>
+      </a>`;
+    }).join('')
+    + `<p class="feedmore"><a href="#">Everything, in order →</a></p>`;
+  }
 
   // Coastlines drawn from real geodata using geoNaturalEarth1 — equirectangular
   // smears everything toward the poles (Iceland and Greenland go wide and flat).
