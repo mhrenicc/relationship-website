@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Feed } from "@/components/home/Feed";
 import { Hero } from "@/components/home/Hero";
+import { HomeNav } from "@/components/home/HomeNav";
 import { Lists } from "@/components/home/Lists";
 import { Places } from "@/components/home/Places";
 import { Ribbon } from "@/components/home/Ribbon";
@@ -60,19 +61,7 @@ export default async function Home() {
 
   return (
     <>
-      <nav>
-        <Link className="wordmark" href="/">
-          Us
-        </Link>
-        <span className="navlinks">
-          <Link href="#feed">Photos</Link>
-          <Link href="/trips">Trips</Link>
-          <Link href="/lists">Lists</Link>
-          <Link className="add" href="/add">
-            Add
-          </Link>
-        </span>
-      </nav>
+      <HomeNav />
 
       <Hero
         title={siteConfig.partnerOne}
