@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Feed } from "@/components/home/Feed";
 import { Hero } from "@/components/home/Hero";
 import { Lists } from "@/components/home/Lists";
+import { Places } from "@/components/home/Places";
 import { Ribbon } from "@/components/home/Ribbon";
 import { Trips } from "@/components/home/Trips";
 import { LiveCounter } from "@/components/LiveCounter";
@@ -11,6 +12,7 @@ import {
   placeholderHero,
   placeholderLists,
   placeholderMilestones,
+  placeholderPlaces,
   placeholderSets,
   placeholderTrips,
 } from "@/lib/placeholder";
@@ -23,16 +25,18 @@ export default async function Home() {
   const { sets: feedSets, isPlaceholder } = await getFeedSets();
   const { sets: allSets } = await getSets();
 
-  const [storedTrips, storedLists, storedMilestones] = await Promise.all([
+  const [storedTrips, storedLists, storedMilestones, storedPlaces] = await Promise.all([
     store.read("trips"),
     store.read("lists"),
     store.read("milestones"),
+    store.read("places"),
   ]);
 
   const sets = isPlaceholder ? placeholderSets : feedSets;
   const trips = isPlaceholder ? placeholderTrips : storedTrips;
   const lists = isPlaceholder ? placeholderLists : storedLists;
   const milestones = isPlaceholder ? placeholderMilestones : storedMilestones;
+  const places = isPlaceholder ? placeholderPlaces : storedPlaces;
 
   const days = daysTogether(siteConfig.togetherSince);
   const photoCount = (isPlaceholder ? placeholderSets : allSets).reduce(
@@ -82,6 +86,7 @@ export default async function Home() {
       <main>
         <Feed sets={sets} />
         <Trips trips={trips} sets={allSets} />
+        <Places places={places} />
         <Lists lists={lists} />
       </main>
 
