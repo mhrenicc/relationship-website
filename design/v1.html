@@ -115,6 +115,7 @@ section{position:relative;scroll-margin-top:4.5rem}
 /* The map is an add-on to trips, not a section of its own. */
 .trips{padding-bottom:clamp(1.5rem,3vw,2.5rem)}
 .places--attached{padding-top:clamp(1.25rem,2.5vw,2rem)}
+.places--attached .eyebrow2{margin-bottom:clamp(0.75rem,1.5vw,1.15rem)}
 /* 1px overlap: two adjacent gradient boxes otherwise antialias into a
    visible hairline at fractional device-pixel boundaries. */
 
@@ -138,7 +139,19 @@ a.card:hover .obj img{transform:scale(1.04)}
 a.card{display:block;text-decoration:none;color:inherit}
 a.card:focus-visible{outline:3px solid var(--violet);outline-offset:5px;border-radius:0.9rem}
 
-/* A quiet label instead of a section announcement. */
+/* Full section headings on Trips and Lists; the feed stays unheaded and the
+   map keeps a quiet sub-label because it is an add-on to Trips. */
+.sechead{display:flex;align-items:end;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;
+  margin-bottom:clamp(2rem,4vw,3.25rem)}
+.sechead h2{font-size:clamp(2rem,1.3rem + 3vw,3.75rem);font-weight:800}
+.sechead .more{font-weight:600;text-decoration:none;font-size:0.9375rem;white-space:nowrap;
+  border-bottom:2px solid currentColor;padding-bottom:2px;transition:opacity 200ms var(--ease)}
+.sechead .more:hover{opacity:0.7}
+.trips .more{color:var(--rose)}
+.lists .more{color:#fff}
+.lists .sechead h2{color:#fff}
+
+/* A quiet sub-label, used only for the map. */
 .eyebrow2{font-size:0.75rem;letter-spacing:0.14em;text-transform:uppercase;font-weight:700;
   color:var(--ink-soft);margin:0 0 clamp(1.25rem,2.5vw,2rem)}
 /* on the saturated band the label must invert */
@@ -375,7 +388,10 @@ footer a{color:var(--rose);font-weight:600;text-decoration:none}
 
 <!-- TRIPS -->
 <section class="trips pad" id="trips">
-  <p class="eyebrow2">Trips</p>
+  <div class="sechead">
+    <h2>Trips</h2>
+    <a class="more" href="#">All four →</a>
+  </div>
   <div class="tripgrid">
     <a class="card trip" href="#" style="--span:7;--h:clamp(14rem,23vw,21rem)">
       <span class="obj"><img src="https://unsplash.com/photos/Aj6mvFNBXAA/download?w=1400" alt=""></span>
@@ -432,7 +448,10 @@ footer a{color:var(--rose);font-weight:600;text-decoration:none}
 
 <!-- LISTS -->
 <section class="lists pad" id="lists">
-  <p class="eyebrow2">Lists</p>
+  <div class="sechead">
+    <h2>Lists</h2>
+    <a class="more" href="#">All lists →</a>
+  </div>
   <div class="listgrid">
     <div class="list">
       <h3>Things to cook properly</h3><span class="count">1 of 3 done</span>
