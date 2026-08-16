@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { StoredSet } from "@/lib/storage";
+import { photoSrc } from "@/lib/storage/variants";
 
 /**
  * A set's footprint is derived from what it holds — how many photographs, and
@@ -45,12 +46,15 @@ export function Feed({ sets }: { sets: StoredSet[] }) {
                   <span className="count">{set.photos.length} photos</span>
                 )}
                 {/* eslint-disable-next-line @next/next/no-img-element -- see Hero */}
-                <img src={set.photos[0].urls.display} alt={set.photos[0].alt || set.caption} />
+                <img
+                  src={photoSrc(set.photos[0], "display")}
+                  alt={set.photos[0].alt || set.caption}
+                />
                 {extra.length > 0 && (
                   <span className="pile">
                     {extra.map((photo) => (
                       // eslint-disable-next-line @next/next/no-img-element -- see Hero
-                      <img key={photo.key} src={photo.urls.thumb} alt="" />
+                      <img key={photo.key} src={photoSrc(photo, "thumb")} alt="" />
                     ))}
                   </span>
                 )}

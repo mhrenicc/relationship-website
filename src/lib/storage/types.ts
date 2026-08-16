@@ -1,12 +1,7 @@
-/** The sizes every uploaded photograph is stored in. */
-export const VARIANTS = {
-  /** Grids and piles. */
-  thumb: 400,
-  /** Opening a set. Full-bleed on a phone, large on a desktop. */
-  display: 1600,
-} as const;
+import type { VariantName } from "./variants";
 
-export type VariantName = keyof typeof VARIANTS;
+export { QUALITY, VARIANTS, photoSrc } from "./variants";
+export type { VariantName } from "./variants";
 
 /**
  * A single photograph.
@@ -15,11 +10,14 @@ export type VariantName = keyof typeof VARIANTS;
  * resolved it to. Records that store only a URL cannot be moved between
  * providers without rewriting every one of them, which is the difference
  * between a config change and a migration.
+ *
+ * `urls` is partial because variants get added over time and older records
+ * will not have them. Read it through `photoSrc`, never by key.
  */
 export type StoredPhoto = {
   key: string;
-  urls: Record<VariantName, string>;
-  /** Of the display variant, so layout can reserve space before it loads. */
+  urls: Partial<Record<VariantName, string>>;
+  /** Of the largest variant stored, so layout can reserve space before it loads. */
   width: number;
   height: number;
   alt: string;

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { SectionShell } from "@/components/SectionShell";
 import { getSets } from "@/lib/moments";
+import { photoSrc } from "@/lib/storage/variants";
 
 export const metadata: Metadata = { title: "Gallery · Us" };
 
@@ -39,7 +40,7 @@ export default async function GalleryPage() {
               }`}
             >
               <Image
-                src={photo.urls.display}
+                src={photoSrc(photo, "display")}
                 alt={photo.alt || photo.caption}
                 fill
                 loading="eager"

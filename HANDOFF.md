@@ -54,11 +54,24 @@ those are dead and can go once `/gallery` is rebuilt.
 
 ## Known problems, in priority order
 
-1. **Photo quality is poor.** Marko's words, and he is right. The display
-   variant is capped at 1600px at WebP quality 78. That is thin for a
-   full-bleed hero on a 1536px screen, and the hero additionally scales 1.12×
-   on scroll. Likely fix: a larger variant (2400px+) used by the hero only, and
-   a higher quality setting. **This is the top thing to fix.**
+1. ~~**Photo quality is poor.**~~ Fixed. There is now a third variant, `full`
+   at 2800px, and the hero uses it; `display` stayed at 1600px for feed cards
+   and trip covers; `thumb` went 400 → 480. Quality is per-variant in
+   `src/lib/storage/variants.ts`. Every read goes through `photoSrc(photo,
+   variant)`, which falls back down to a smaller variant, because records
+   written before a variant existed do not have it.
+
+   Two consequences worth knowing:
+
+   - **Only new uploads improve.** Originals are not retained — only the WebP
+     variants are — so nothing can be re-derived. The four stock uploads in
+     the local store keep their old quality, and any future quality change
+     will need a re-upload too. This is another reason to deploy before
+     loading real photographs.
+   - **Capacity is roughly a third of what it was.** A 4032px phone photo now
+     stores about 1.4 MB across the three variants, so 1 GB holds about 670
+     photographs rather than 2,000. If that becomes the binding constraint,
+     the levers are R2 (no egress charge) or dropping `full` to ~2200px.
 2. **No edit or delete anywhere.** Everything is append-only. Marko has asked
    for edit and delete next.
 3. **`/gallery` still wears the old design.** It is the last route that does.
@@ -100,9 +113,8 @@ those are dead and can go once `/gallery` is rebuilt.
 filesystem; production writes to Blob. They are separate stores and nothing
 migrates between them.
 
-Ship resize improvements before any bulk upload: unresized, 1 GB holds roughly
-250 photographs; resized, roughly 2,000. Exceeding the free tier removes access
-for 30 days rather than issuing a bill.
+Resized, 1 GB holds roughly 670 photographs; unresized it would hold about 250.
+Exceeding the free tier removes access for 30 days rather than issuing a bill.
 
 ## Still unanswered
 

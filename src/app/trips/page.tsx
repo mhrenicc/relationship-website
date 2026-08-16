@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getSets } from "@/lib/moments";
 import { getPhotoStore } from "@/lib/storage";
+import { photoSrc } from "@/lib/storage/variants";
 import { TripForm } from "./TripForm";
 import "../home.css";
 
@@ -72,7 +73,7 @@ export default async function TripsPage() {
                   <span className="obj">
                     {lead ? (
                       // eslint-disable-next-line @next/next/no-img-element -- images.unoptimized is set
-                      <img src={lead.urls.display} alt={lead.alt || trip.name} />
+                      <img src={photoSrc(lead, "display")} alt={lead.alt || trip.name} />
                     ) : (
                       <span className="obj__empty">Add photographs →</span>
                     )}

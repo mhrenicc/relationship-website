@@ -19,6 +19,7 @@ import {
 } from "@/lib/placeholder";
 import { siteConfig } from "@/lib/site-config";
 import { getPhotoStore } from "@/lib/storage";
+import { photoSrc } from "@/lib/storage/variants";
 import "./home.css";
 
 export default async function Home() {
@@ -55,7 +56,7 @@ export default async function Home() {
   // stands in until something real exists.
   const lead = sets[0]?.photos[0];
   const heroPhoto = lead
-    ? { src: lead.urls.display, alt: lead.alt }
+    ? { src: photoSrc(lead, "full"), alt: lead.alt }
     : { src: placeholderHero.src, alt: placeholderHero.alt };
 
   const meta = [

@@ -1,19 +1,18 @@
 import "server-only";
 import sharp from "sharp";
 import { getPhotoStore } from "./index";
-import { VARIANTS, type StoredPhoto, type VariantName } from "./types";
+import { QUALITY, VARIANTS, type StoredPhoto, type VariantName } from "./types";
 
 /**
  * Why this exists at all: unresized phone photographs are 3-5 MB, which fills
  * a 1 GB store in roughly 250 photos and blows the monthly transfer budget in
- * about 25 gallery views. Resized, the same store holds thousands and a
- * gallery view costs megabytes rather than hundreds of them.
+ * about 25 gallery views. Resized, the same store holds well over a thousand
+ * and a gallery view costs megabytes rather than hundreds of them, because
+ * only the hero ever pulls the largest variant.
  *
  * Exceeding the transfer limit on Vercel's free tier removes access for 30
  * days rather than issuing a bill, so the failure mode is a dead link.
  */
-
-const QUALITY = 78;
 
 /** Accepted on upload. Anything else is rejected rather than stored unread. */
 const ACCEPTED = new Set(["image/jpeg", "image/png", "image/webp", "image/avif", "image/heic", "image/heif"]);
@@ -44,23 +43,38 @@ export async function processUpload(file: File, key: string): Promise<StoredPhot
   }
 
   const store = getPhotoStore();
-  const urls = {} as Record<VariantName, string>;
+  const urls: Partial<Record<VariantName, string>> = {};
   let width = metadata.width;
   let height = metadata.height;
 
-  for (const [name, size] of Object.entries(VARIANTS) as [VariantName, number][]) {
-    const pipeline = base
+  // Ascending, so a variant that would come out the same size as the one below
+  // it can point at that one instead of storing a second identical file. A
+  // 1200px source otherwise pays for `display` and `full` twice over.
+  const ascending = (Object.entries(VARIANTS) as [VariantName, number][]).sort(
+    (a, b) => a[1] - b[1],
+  );
+  let previous: { name: VariantName; width: number; height: number } | undefined;
+
+  for (const [name, size] of ascending) {
+    const { data, info } = await base
       .clone()
       .resize({ width: size, height: size, fit: "inside", withoutEnlargement: true })
-      .webp({ quality: QUALITY });
+      .webp({ quality: QUALITY[name], smartSubsample: true, effort: 5 })
+      .toBuffer({ resolveWithObject: true });
 
-    const { data, info } = await pipeline.toBuffer({ resolveWithObject: true });
-    urls[name] = await store.save(data, `${key}-${name}.webp`, "image/webp");
-
-    if (name === "display") {
-      width = info.width;
-      height = info.height;
+    if (previous && info.width === previous.width && info.height === previous.height) {
+      urls[name] = urls[previous.name];
+      continue;
     }
+
+    urls[name] = await store.save(data, `${key}-${name}.webp`, "image/webp");
+    previous = { name, width: info.width, height: info.height };
+
+    // The largest variant produced wins, because `metadata()` reports the
+    // pre-rotation dimensions and a sideways phone photo would report its
+    // aspect ratio the wrong way round.
+    width = info.width;
+    height = info.height;
   }
 
   return {

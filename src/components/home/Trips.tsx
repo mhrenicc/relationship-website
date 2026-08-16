@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { StoredSet, StoredTrip } from "@/lib/storage";
+import { photoSrc } from "@/lib/storage/variants";
 
 /** Uneven by design: spans and heights cycle so no two neighbours match. */
 const SHAPES = [
@@ -48,7 +49,7 @@ export function Trips({ trips, sets }: { trips: StoredTrip[]; sets: StoredSet[] 
               <span className="obj">
                 {lead ? (
                   // eslint-disable-next-line @next/next/no-img-element -- see Hero
-                  <img src={lead.urls.display} alt={lead.alt || trip.name} />
+                  <img src={photoSrc(lead, "display")} alt={lead.alt || trip.name} />
                 ) : (
                   <span className="obj__empty">No photographs yet</span>
                 )}
