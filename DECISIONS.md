@@ -34,6 +34,19 @@ file.
 | 12 | It will be **deployed** so she can open a link, not run locally only | Session 1 |
 | 13 | The frontend rules in Marko's own web-design CLAUDE.md apply (anti-generic guardrails, real interactive states, no `transition-all`, no default framework palette) | Session 1 |
 | 14 | This repo is a prototype; decisions get logged here for the real build | Session 1 |
+| 15 | Homepage is **one feed**, not stacked sections. Photo sets only in the feed | Session 2 |
+| 16 | The map is **not** the centrepiece: an add-on beside/below Trips | Session 2 |
+| 17 | Timeline is **not a section**: a horizontal ribbon at the very bottom, low opacity, "elegant to look at when we want to" | Session 2 |
+| 18 | Trips and Lists **keep their big display headings**. The objection was to hard colour cuts, not to headings | Session 2 |
+| 19 | Navigation stays a **top bar**. No sidebar | Session 2 |
+| 20 | A photo entry is a **set**: several photographs, one caption, one date | Session 2 |
+| 21 | Written notes **deferred** to a later update. Sticky-note style when they come | Session 2 |
+| 22 | One shared password kept; the add form has a "posting as" choice | Session 2 |
+| 23 | Sections must **blend**, not hard-cut into each other | Session 2 |
+| 24 | The map must look **illustrated, not a satellite/radar image**. "The purple is not it" | Session 2 |
+| 25 | Start on **Vercel**, switch storage later if it is not enough | Session 2 |
+| 26 | **Deploy before loading real photos**, because local uploads never reach production | Session 2 |
+| 27 | The design mockup is **retired**. All further work happens in the app | Session 2 |
 
 ## Reversed decisions
 
@@ -50,6 +63,12 @@ actually meant *more energy in a coherent palette*. Saturation and variety are n
 axis. The correct move is a tight, related hue family with real lightness hierarchy, not a
 wider spread of hues. Neo-brutalist styling (hard outlines, blocky offset shadows) was never
 asked for and read as cartoonish.
+
+**Third reversal, session 2:** offered "design mockup first, then build" he initially
+agreed, then rejected the result because localhost still showed the old prototype while
+all the design lived in a throwaway HTML file. The lesson is not that mockups are wrong
+— they were how three rejected palettes got caught cheaply — but that **the app must not
+be allowed to drift behind them**. Port promptly or do not mockup at all.
 
 **The pattern, stated plainly:** offered a choice between restrained and expressive, he picks
 restrained on paper and rejects it on screen. Both reversals ran the same way, and neither was

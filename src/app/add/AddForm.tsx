@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
-import { addMoment, type AddState } from "./actions";
+import { useActionState, useEffect, useState, useSyncExternalStore } from "react";
+import type { StoredTrip } from "@/lib/storage";
+import { addSet, type AddState } from "./actions";
 
 const initialState: AddState = {};
 
@@ -15,6 +16,7 @@ const label =
     that writes state during render. */
 function PhotoField() {
   const [preview, setPreview] = useState<string | null>(null);
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
     // Cleanup only. Object URLs leak for the life of the page otherwise.
@@ -26,16 +28,18 @@ function PhotoField() {
   return (
     <div>
       <label htmlFor="photo" className={label}>
-        Photo
+        Photos
       </label>
       <input
         id="photo"
         type="file"
-        name="photo"
+        name="photos"
         required
-        accept="image/jpeg,image/png,image/webp,image/avif"
+        multiple
+        accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif"
         onChange={(event) => {
           const file = event.target.files?.[0];
+          setCount(event.target.files?.length ?? 0);
           setPreview((old) => {
             if (old) URL.revokeObjectURL(old);
             return file ? URL.createObjectURL(file) : null;
@@ -44,15 +48,21 @@ function PhotoField() {
         className={`${field} file:mr-4 file:rounded-full file:border-0 file:bg-[var(--color-violet)] file:px-4 file:py-2 file:font-medium file:text-white`}
       />
       <p className="mt-2 text-[length:var(--text-meta)] text-[var(--color-ink-soft)]">
-        JPG, PNG, WebP or AVIF. Up to 12MB.
+        JPG, PNG, WebP, AVIF or HEIC. Pick as many as belong together — they become one entry with one caption.
       </p>
+
+      {count > 1 && (
+        <p className="mt-2 text-[length:var(--text-meta)] font-medium text-[var(--color-rose)]">
+          {count} photos — one entry, one caption.
+        </p>
+      )}
 
       {preview && (
         // next/image cannot optimise a blob: URL, and this never leaves the page
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={preview}
-          alt="The photo you just picked, before saving"
+          alt="The first photo you just picked, before saving"
           className="mt-4 max-h-72 w-full rounded-[var(--radius)] object-cover shadow-[var(--shadow-soft)]"
         />
       )}
@@ -60,9 +70,75 @@ function PhotoField() {
   );
 }
 
-export function AddForm() {
+/**
+ * Who is posting. With one shared password the site has no identity of its
+ * own, so this is a declared label rather than authentication. Remembered per
+ * device, because a fresh decision on every upload is how it ends up wrong.
+ *
+ * Backed by an external store rather than state-from-effect: the server has no
+ * localStorage, so seeding state in an effect renders the wrong pill for a
+ * frame and trips React's hydration rules.
+ */
+type Who = "marko" | "partner";
+
+const KEY = "postingAs";
+const listeners = new Set<() => void>();
+
+function subscribe(onChange: () => void) {
+  listeners.add(onChange);
+  return () => listeners.delete(onChange);
+}
+
+function readWho(): Who {
+  const saved = window.localStorage.getItem(KEY);
+  return saved === "partner" ? "partner" : "marko";
+}
+
+function writeWho(next: Who) {
+  window.localStorage.setItem(KEY, next);
+  for (const listener of listeners) listener();
+}
+
+function PostingAs() {
+  const who = useSyncExternalStore(subscribe, readWho, () => "marko" as Who);
+
+  return (
+    <fieldset className="border-0 p-0">
+      <legend className={label}>Posting as</legend>
+      <div className="flex gap-3">
+        {(["marko", "partner"] as const).map((option) => (
+          <label
+            key={option}
+            className={`cursor-pointer rounded-full px-5 py-2 font-medium transition-[background-color,color] duration-[var(--duration-quick)] ease-[var(--ease-out-expo)] ${
+              who === option
+                ? "bg-[var(--color-violet)] text-white"
+                : "bg-[var(--wash-violet)] text-[var(--color-ink)] hover:bg-[var(--wash-rose)]"
+            }`}
+          >
+            <input
+              type="radio"
+              name="addedBy"
+              value={option}
+              checked={who === option}
+              onChange={() => writeWho(option)}
+              className="sr-only"
+            />
+            {option === "marko" ? "Marko" : "Partner"}
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
+type AddFormProps = {
+  trips: StoredTrip[];
+  preselectedTrip?: string;
+};
+
+export function AddForm({ trips, preselectedTrip }: AddFormProps) {
   const [state, formAction, isPending] = useActionState(
-    addMoment,
+    addSet,
     initialState,
   );
 
@@ -117,6 +193,37 @@ export function AddForm() {
             />
           </div>
         </div>
+
+        {trips.length > 0 && (
+          <div>
+            <label htmlFor="tripId" className={label}>
+              Part of a trip <span className="font-normal">(optional)</span>
+            </label>
+            <select
+              id="tripId"
+              name="tripId"
+              defaultValue={preselectedTrip ?? ""}
+              className={field}
+            >
+              <option value="">Not part of a trip</option>
+              {trips.map((trip) => (
+                <option key={trip.id} value={trip.id}>
+                  {trip.name}
+                </option>
+              ))}
+            </select>
+            <label className="mt-3 flex items-center gap-2 font-medium">
+              {/* An unticked checkbox sends nothing, which is indistinguishable
+                  from the picker not being rendered at all. The hidden field
+                  makes the difference explicit. */}
+              <input type="hidden" name="inFeed" value="off" />
+              <input type="checkbox" name="inFeed" defaultChecked value="on" />
+              Also show these in the main feed
+            </label>
+          </div>
+        )}
+
+        <PostingAs />
 
         <div>
           <label htmlFor="alt" className={label}>

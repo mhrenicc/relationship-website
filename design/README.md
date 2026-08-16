@@ -1,3 +1,7 @@
+> **RETIRED — 16 August 2026.** Fully ported into the app. Kept as history
+> only. Do not edit these files and do not design in them; all work now
+> happens in `src/` at localhost:3000. See `HANDOFF.md`.
+
 # Design mockups
 
 Static HTML mockups used to settle the visual direction before it is built in

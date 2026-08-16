@@ -1,128 +1,103 @@
-import Image from "next/image";
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import { Feed } from "@/components/home/Feed";
+import { Hero } from "@/components/home/Hero";
+import { HomeNav } from "@/components/home/HomeNav";
+import { Lists } from "@/components/home/Lists";
+import { Places } from "@/components/home/Places";
+import { Ribbon } from "@/components/home/Ribbon";
+import { Trips } from "@/components/home/Trips";
 import { LiveCounter } from "@/components/LiveCounter";
-import { Nav } from "@/components/Nav";
-import { PhotoStack } from "@/components/PhotoStack";
-import { PlacesMarquee } from "@/components/PlacesMarquee";
-import { TimelineStrip } from "@/components/TimelineStrip";
 import { daysTogether } from "@/lib/days-together";
-import { getMoments } from "@/lib/moments";
+import { getFeedSets, getSets } from "@/lib/moments";
 import {
-  heroPhoto,
-  memoryPool,
-  places,
-  sections,
-  siteConfig,
-} from "@/lib/site-config";
-
-const TINTS = ["violet", "rose", "coral"] as const;
+  placeholderHero,
+  placeholderLists,
+  placeholderMilestones,
+  placeholderPlaces,
+  placeholderSets,
+  placeholderTrips,
+} from "@/lib/placeholder";
+import { siteConfig } from "@/lib/site-config";
+import { getPhotoStore } from "@/lib/storage";
+import "./home.css";
 
 export default async function Home() {
+  const store = getPhotoStore();
+  const { sets: feedSets } = await getFeedSets();
+  const { sets: allSets } = await getSets();
+
+  const [storedTrips, storedLists, storedMilestones, storedPlaces] = await Promise.all([
+    store.read("trips"),
+    store.read("lists"),
+    store.read("milestones"),
+    store.read("places"),
+  ]);
+
+  // Placeholder-ness is decided per collection, not globally. Adding the first
+  // real place while there are still no photographs must show that place —
+  // deciding it from sets alone made real content invisible.
+  const fallback = <T,>(stored: T[], placeholder: T[]) =>
+    stored.length > 0 ? stored : placeholder;
+
+  const sets = fallback(feedSets, placeholderSets);
+  const trips = fallback(storedTrips, placeholderTrips);
+  const lists = fallback(storedLists, placeholderLists);
+  const milestones = fallback(storedMilestones, placeholderMilestones);
+  const places = fallback(storedPlaces, placeholderPlaces);
+
   const days = daysTogether(siteConfig.togetherSince);
-  const { moments } = await getMoments();
+  const photoCount = fallback(allSets, placeholderSets).reduce(
+    (total, set) => total + set.photos.length,
+    0,
+  );
+
+  // The newest set's lead photograph opens the site; the stock hero only
+  // stands in until something real exists.
+  const lead = sets[0]?.photos[0];
+  const heroPhoto = lead
+    ? { src: lead.urls.display, alt: lead.alt }
+    : { src: placeholderHero.src, alt: placeholderHero.alt };
+
+  const meta = [
+    `${photoCount} photograph${photoCount === 1 ? "" : "s"}`,
+    trips.length > 0 && `${trips.length} trip${trips.length === 1 ? "" : "s"}`,
+    lists.length > 0 && `${lists.length} list${lists.length === 1 ? "" : "s"}`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <>
-      <header className="absolute inset-x-0 top-0 z-[var(--z-sticky)]">
-        <Nav onDark />
-      </header>
+      <HomeNav />
 
-      <main className="flex flex-1 flex-col">
-        <section className="relative flex min-h-[88vh] flex-col justify-end overflow-hidden">
-          <Image
-            src={heroPhoto.src}
-            alt={heroPhoto.alt}
-            fill
-            priority
-            sizes="100vw"
-            className="settle object-cover"
-          />
-          {/* Top stays dark for the nav; the base melts into the page colour */}
-          <div
-            aria-hidden
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to bottom, oklch(0.2 0.04 320 / 0.6), oklch(0.2 0.04 320 / 0.15) 38%, oklch(0.2 0.04 320 / 0.55) 72%, var(--paper))",
-            }}
-          />
+      <Hero
+        title={siteConfig.partnerOne}
+        accent="&"
+        tail={siteConfig.partnerTwo}
+        photo={heroPhoto}
+        meta={meta}
+        counter={`${days} days`}
+      />
 
-          <div className="rise relative px-[var(--space-gutter)] pb-[clamp(3rem,2rem+5vw,6rem)]">
-            <h1 className="max-w-[14ch] text-[length:var(--text-display)] text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.35)]">
-              {siteConfig.partnerOne} and {siteConfig.partnerTwo}
-            </h1>
-            <div className="mt-6 inline-block rounded-full bg-white/95 px-5 py-2.5 shadow-[var(--shadow-soft)] backdrop-blur-sm">
-              <LiveCounter since={siteConfig.togetherSince} initialDays={days} />
-            </div>
-          </div>
-        </section>
-
-        <div className="pb-[var(--space-movement)] pt-[clamp(3rem,2rem+4vw,6rem)]">
-          <TimelineStrip moments={moments} />
-        </div>
-
-        {/* A page of nothing but photographs gets monotonous. This breaks it. */}
-        <section
-          style={{ "--wash-tint": "var(--wash-violet)" } as CSSProperties}
-          className="wash px-[var(--space-gutter)] py-[clamp(4rem,3rem+5vw,7rem)]"
-        >
-          <p className="max-w-[18ch] font-[family-name:var(--font-display)] text-[length:var(--text-display)] font-semibold leading-[0.98]">
-            Most of this is deeply unremarkable.
-          </p>
-          <p className="mt-8 max-w-[52ch] text-[length:var(--text-lead)] text-[var(--color-ink-soft)]">
-            A Tuesday. A car park in the rain. An argument about directions that
-            neither of us won and both of us still bring up. It is all in here,
-            because that is most of what it actually was.
-          </p>
-        </section>
-
-        <section className="px-[var(--space-gutter)] py-[var(--space-movement)]">
-          <PhotoStack photos={memoryPool} />
-        </section>
-
-        <PlacesMarquee places={places} />
-
-        <nav
-          aria-label="Sections"
-          className="grid gap-6 px-[var(--space-gutter)] py-[var(--space-movement)] sm:grid-cols-3"
-        >
-          {sections.map((section, index) => (
-            <Link
-              key={section.href}
-              href={section.href}
-              style={
-                {
-                  "--wash-tint": `var(--wash-${TINTS[index % TINTS.length]})`,
-                } as CSSProperties
-              }
-              className="group rounded-[var(--radius-lg)] bg-[var(--wash-tint)] p-8 shadow-[var(--shadow-soft)] transition-[transform,box-shadow] duration-[var(--duration-quick)] ease-[var(--ease-out-expo)] hover:-translate-y-1 hover:shadow-[var(--shadow-lift)]"
-            >
-              <h2 className="text-[length:var(--text-title)]">
-                {section.title}
-                <span
-                  aria-hidden
-                  className="ml-2 inline-block text-[var(--color-rose)] transition-transform duration-[var(--duration-quick)] ease-[var(--ease-out-expo)] group-hover:translate-x-1.5"
-                >
-                  &rarr;
-                </span>
-              </h2>
-              <p className="mt-3 max-w-[34ch] text-[var(--color-ink-soft)]">
-                {section.blurb}
-              </p>
-            </Link>
-          ))}
-        </nav>
+      <main>
+        <Feed sets={sets} />
+        <Trips trips={trips} sets={allSets} />
+        <Places places={places} />
+        <Lists lists={lists} />
       </main>
 
-      <footer className="flex flex-wrap items-center justify-between gap-4 px-[var(--space-gutter)] pb-12 text-[var(--color-ink-soft)]">
+      <Ribbon
+        met={siteConfig.togetherSince}
+        today={new Date().toISOString().slice(0, 10)}
+        milestones={milestones}
+      />
+
+      <footer>
         <span>Ours, and nobody else&rsquo;s.</span>
-        <Link
-          href="/add"
-          className="font-medium text-[var(--color-rose)] underline-offset-4 transition-colors duration-[var(--duration-quick)] hover:text-[var(--color-violet)] hover:underline"
-        >
-          Add something
-        </Link>
+        <span>
+          <Link href="/add">Add something</Link> ·{" "}
+          <LiveCounter since={siteConfig.togetherSince} initialDays={days} />
+        </span>
       </footer>
     </>
   );

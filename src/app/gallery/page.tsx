@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { SectionShell } from "@/components/SectionShell";
-import { getMoments } from "@/lib/moments";
+import { getSets } from "@/lib/moments";
 
 export const metadata: Metadata = { title: "Gallery · Us" };
 
@@ -14,8 +14,13 @@ const SPANS = [
 ];
 
 export default async function GalleryPage() {
-  const { moments, isPlaceholder } = await getMoments();
-  const hasContent = !isPlaceholder && moments.length > 0;
+  const { sets, isPlaceholder } = await getSets();
+  // Every photograph from every set, flattened. The gallery shows pictures;
+  // the feed shows sets.
+  const photos = sets.flatMap((set) =>
+    set.photos.map((photo) => ({ ...photo, caption: set.caption, date: set.date })),
+  );
+  const hasContent = !isPlaceholder && photos.length > 0;
 
   return (
     <SectionShell
@@ -26,16 +31,16 @@ export default async function GalleryPage() {
     >
       {hasContent ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-12">
-          {moments.map((moment, index) => (
+          {photos.map((photo, index) => (
             <figure
-              key={`${moment.date}-${index}`}
+              key={photo.key}
               className={`group relative overflow-hidden rounded-[var(--radius-lg)] bg-white shadow-[var(--shadow-soft)] transition-[transform,box-shadow] duration-[var(--duration-quick)] ease-[var(--ease-out-expo)] hover:-translate-y-1 hover:shadow-[var(--shadow-lift)] ${
                 SPANS[index % SPANS.length]
               }`}
             >
               <Image
-                src={moment.src}
-                alt={moment.alt}
+                src={photo.urls.display}
+                alt={photo.alt || photo.caption}
                 fill
                 loading="eager"
                 sizes="(max-width: 640px) 100vw, 50vw"
