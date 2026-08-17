@@ -96,6 +96,7 @@ export default async function Home() {
         <span>Ours, and nobody else&rsquo;s.</span>
         <span>
           <Link href="/add">Add something</Link> ·{" "}
+          <Link href="/deleted">Recently deleted</Link> ·{" "}
           <LiveCounter since={siteConfig.togetherSince} initialDays={days} />
         </span>
       </footer>

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { deleteSet } from "@/app/sets-actions";
+import { CardActions } from "@/components/CardActions";
 import { SectionShell } from "@/components/SectionShell";
 import { getSets } from "@/lib/moments";
 import { photoSrc } from "@/lib/storage/variants";
@@ -19,7 +21,13 @@ export default async function GalleryPage() {
   // Every photograph from every set, flattened. The gallery shows pictures;
   // the feed shows sets.
   const photos = sets.flatMap((set) =>
-    set.photos.map((photo) => ({ ...photo, caption: set.caption, date: set.date })),
+    set.photos.map((photo) => ({
+      ...photo,
+      caption: set.caption,
+      date: set.date,
+      setId: set.id,
+      isPlaceholder,
+    })),
   );
   const hasContent = !isPlaceholder && photos.length > 0;
 
@@ -35,7 +43,7 @@ export default async function GalleryPage() {
           {photos.map((photo, index) => (
             <figure
               key={photo.key}
-              className={`group relative overflow-hidden rounded-[var(--radius-lg)] bg-white shadow-[var(--shadow-soft)] transition-[transform,box-shadow] duration-[var(--duration-quick)] ease-[var(--ease-out-expo)] hover:-translate-y-1 hover:shadow-[var(--shadow-lift)] ${
+              className={`card group relative overflow-hidden rounded-[var(--radius-lg)] bg-white shadow-[var(--shadow-soft)] transition-[transform,box-shadow] duration-[var(--duration-quick)] ease-[var(--ease-out-expo)] hover:-translate-y-1 hover:shadow-[var(--shadow-lift)] ${
                 SPANS[index % SPANS.length]
               }`}
             >
@@ -47,6 +55,17 @@ export default async function GalleryPage() {
                 sizes="(max-width: 640px) 100vw, 50vw"
                 className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out-expo)] group-hover:scale-[1.03]"
               />
+
+              {/* Acts on the whole entry, not this one photograph — removing a
+                  single photograph lives inside the edit form, where the rest
+                  of the set is visible and the choice is obvious. */}
+              {!photo.isPlaceholder && (
+                <CardActions
+                  editHref={`/sets/${photo.setId}/edit`}
+                  onDelete={deleteSet.bind(null, photo.setId)}
+                  what="entry"
+                />
+              )}
             </figure>
           ))}
         </div>

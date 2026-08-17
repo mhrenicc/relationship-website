@@ -198,3 +198,100 @@ p {
     scroll-behavior: auto !important;
   }
 }
+
+/* Edit and delete on a card. Styles live here rather than in home.css because
+   the gallery uses the component too and never loads home.css.
+
+   The reveal selector is `:hover > .cardacts` rather than naming a card class,
+   so the cluster works under any parent — the feed's article, a trip, or the
+   gallery's figure — without each of them having to opt in. It stays hidden
+   until asked for, or a wall of photographs starts to read as a CMS.
+   :focus-within keeps it reachable by keyboard; coarse pointers get it
+   permanently, because they cannot hover at all. */
+.cardacts {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  z-index: 4;
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(-0.35rem);
+  pointer-events: none;
+  transition:
+    opacity 240ms var(--ease-out-expo),
+    transform 240ms var(--ease-out-expo);
+}
+
+:hover > .cardacts,
+:focus-within > .cardacts,
+.cardacts--confirm {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.cardacts__btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  padding: 0.34rem 0.7rem;
+  border-radius: 2rem;
+  background: oklch(1 0 0 / 0.92);
+  color: var(--ink);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 3px 12px oklch(0.25 0.06 320 / 0.3);
+  transition:
+    background-color 180ms var(--ease-out-expo),
+    transform 180ms var(--ease-out-expo);
+}
+
+.cardacts__btn:hover {
+  background: #fff;
+  transform: translateY(-1px);
+}
+
+.cardacts__btn:active {
+  transform: translateY(0);
+}
+
+.cardacts__btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  transform: none;
+}
+
+.cardacts__btn--yes {
+  background: var(--rose);
+  color: #fff;
+}
+
+.cardacts__btn--yes:hover {
+  background: var(--rose);
+  filter: brightness(1.08);
+}
+
+.cardacts__ask {
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #fff;
+  background: oklch(0.2 0.04 320 / 0.74);
+  backdrop-filter: blur(8px);
+  padding: 0.34rem 0.6rem;
+  border-radius: 2rem;
+}
+
+@media (hover: none) {
+  .cardacts {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+}

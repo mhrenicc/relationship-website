@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { deleteTrip } from "@/app/trips-actions";
+import { CardActions } from "@/components/CardActions";
 import type { StoredSet, StoredTrip } from "@/lib/storage";
 import { photoSrc } from "@/lib/storage/variants";
 
@@ -40,29 +42,39 @@ export function Trips({ trips, sets }: { trips: StoredTrip[]; sets: StoredSet[] 
           const lead = photos[0];
 
           return (
-            <Link
+            // See Feed: an article, so the buttons are not inside an anchor.
+            <article
               key={trip.id}
-              href={`/trips#${trip.id}`}
               className="card trip"
               style={{ "--span": shape.span, "--h": shape.height } as React.CSSProperties}
             >
-              <span className="obj">
-                {lead ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- see Hero
-                  <img src={photoSrc(lead, "display")} alt={lead.alt || trip.name} />
-                ) : (
-                  <span className="obj__empty">No photographs yet</span>
-                )}
-              </span>
-              <span className="cap">
-                <b>{trip.name}</b>
-                <span className="places">{trip.places.join(" · ")}</span>
-                <span className="dates">
-                  {formatRange(trip.start, trip.end)}
-                  {photos.length > 0 && ` · ${photos.length} photos`}
+              <Link href={`/trips#${trip.id}`}>
+                <span className="obj">
+                  {lead ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- see Hero
+                    <img src={photoSrc(lead, "display")} alt={lead.alt || trip.name} />
+                  ) : (
+                    <span className="obj__empty">No photographs yet</span>
+                  )}
                 </span>
-              </span>
-            </Link>
+                <span className="cap">
+                  <b>{trip.name}</b>
+                  <span className="places">{trip.places.join(" · ")}</span>
+                  <span className="dates">
+                    {formatRange(trip.start, trip.end)}
+                    {photos.length > 0 && ` · ${photos.length} photos`}
+                  </span>
+                </span>
+              </Link>
+
+              {!trip.id.startsWith("p-trip-") && (
+                <CardActions
+                  editHref={`/trips/${trip.id}/edit`}
+                  onDelete={deleteTrip.bind(null, trip.id)}
+                  what="trip"
+                />
+              )}
+            </article>
           );
         })}
       </div>

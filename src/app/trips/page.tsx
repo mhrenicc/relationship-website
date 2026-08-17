@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { deleteTrip } from "@/app/trips-actions";
+import { CardActions } from "@/components/CardActions";
 import { getSets } from "@/lib/moments";
 import { readLive } from "@/lib/records";
 import { photoSrc } from "@/lib/storage/variants";
@@ -60,33 +62,41 @@ export default async function TripsPage() {
               const span = index % 2 === 0 ? 7 : 5;
 
               return (
-                <Link
+                // See Feed: an article, so the buttons are not inside an anchor.
+                <article
                   key={trip.id}
                   id={trip.id}
-                  href={`/add?trip=${trip.id}`}
                   className="card trip"
                   style={
                     { "--span": span, "--h": "clamp(14rem,24vw,22rem)" } as React.CSSProperties
                   }
                 >
-                  <span className="obj">
-                    {lead ? (
-                      // eslint-disable-next-line @next/next/no-img-element -- images.unoptimized is set
-                      <img src={photoSrc(lead, "display")} alt={lead.alt || trip.name} />
-                    ) : (
-                      <span className="obj__empty">Add photographs →</span>
-                    )}
-                  </span>
-                  <span className="cap">
-                    <b>{trip.name}</b>
-                    <span className="places">{trip.places.join(" · ")}</span>
-                    <span className="dates">
-                      {formatRange(trip.start, trip.end)}
-                      {photos.length > 0 && ` · ${photos.length} photos`}
+                  <Link href={`/add?trip=${trip.id}`}>
+                    <span className="obj">
+                      {lead ? (
+                        // eslint-disable-next-line @next/next/no-img-element -- images.unoptimized is set
+                        <img src={photoSrc(lead, "display")} alt={lead.alt || trip.name} />
+                      ) : (
+                        <span className="obj__empty">Add photographs →</span>
+                      )}
                     </span>
-                    {trip.note && <span className="dates">{trip.note}</span>}
-                  </span>
-                </Link>
+                    <span className="cap">
+                      <b>{trip.name}</b>
+                      <span className="places">{trip.places.join(" · ")}</span>
+                      <span className="dates">
+                        {formatRange(trip.start, trip.end)}
+                        {photos.length > 0 && ` · ${photos.length} photos`}
+                      </span>
+                      {trip.note && <span className="dates">{trip.note}</span>}
+                    </span>
+                  </Link>
+
+                  <CardActions
+                    editHref={`/trips/${trip.id}/edit`}
+                    onDelete={deleteTrip.bind(null, trip.id)}
+                    what="trip"
+                  />
+                </article>
               );
             })}
           </div>

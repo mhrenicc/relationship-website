@@ -3,6 +3,8 @@ import Link from "next/link";
 const links = [
   { href: "/gallery", label: "Gallery" },
   { href: "/trips", label: "Trips" },
+  // Deleting is only safe if the way back is findable without being told.
+  { href: "/deleted", label: "Deleted" },
 ];
 
 type Props = {

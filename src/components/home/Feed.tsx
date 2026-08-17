@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { deleteSet } from "@/app/sets-actions";
+import { CardActions } from "@/components/CardActions";
 import type { StoredSet } from "@/lib/storage";
 import { photoSrc } from "@/lib/storage/variants";
 
@@ -35,37 +37,48 @@ export function Feed({ sets }: { sets: StoredSet[] }) {
           const extra = set.photos.slice(1, 3);
 
           return (
-            <Link
+            // An article rather than the link itself: the edit and delete
+            // controls are buttons, and a button inside an anchor is invalid.
+            <article
               key={set.id}
-              href={`/gallery#${set.id}`}
               className="card"
               style={{ "--span": span, "--h": height } as React.CSSProperties}
             >
-              <span className="obj">
-                {set.photos.length > 1 && (
-                  <span className="count">{set.photos.length} photos</span>
-                )}
-                {/* eslint-disable-next-line @next/next/no-img-element -- see Hero */}
-                <img
-                  src={photoSrc(set.photos[0], "display")}
-                  alt={set.photos[0].alt || set.caption}
-                />
-                {extra.length > 0 && (
-                  <span className="pile">
-                    {extra.map((photo) => (
-                      // eslint-disable-next-line @next/next/no-img-element -- see Hero
-                      <img key={photo.key} src={photoSrc(photo, "thumb")} alt="" />
-                    ))}
-                  </span>
-                )}
-              </span>
-              <span className="cap">
-                <b>{set.caption}</b>
-                <span>
-                  {formatDate(set.date)} · added by <em>{who(set.addedBy)}</em>
+              <Link href={`/gallery#${set.id}`}>
+                <span className="obj">
+                  {set.photos.length > 1 && (
+                    <span className="count">{set.photos.length} photos</span>
+                  )}
+                  {/* eslint-disable-next-line @next/next/no-img-element -- see Hero */}
+                  <img
+                    src={photoSrc(set.photos[0], "display")}
+                    alt={set.photos[0].alt || set.caption}
+                  />
+                  {extra.length > 0 && (
+                    <span className="pile">
+                      {extra.map((photo) => (
+                        // eslint-disable-next-line @next/next/no-img-element -- see Hero
+                        <img key={photo.key} src={photoSrc(photo, "thumb")} alt="" />
+                      ))}
+                    </span>
+                  )}
                 </span>
-              </span>
-            </Link>
+                <span className="cap">
+                  <b>{set.caption}</b>
+                  <span>
+                    {formatDate(set.date)} · added by <em>{who(set.addedBy)}</em>
+                  </span>
+                </span>
+              </Link>
+
+              {!set.id.startsWith("placeholder-") && (
+                <CardActions
+                  editHref={`/sets/${set.id}/edit`}
+                  onDelete={deleteSet.bind(null, set.id)}
+                  what="entry"
+                />
+              )}
+            </article>
           );
         })}
 

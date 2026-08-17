@@ -116,17 +116,19 @@ section{position:relative;scroll-margin-top:4.5rem}
 .obj{display:block;position:relative;border-radius:0.75rem;overflow:hidden;
   box-shadow:0 2px 10px oklch(0.4 0.08 330 / 0.10),0 18px 40px oklch(0.4 0.08 330 / 0.12);
   transition:transform 420ms var(--ease),box-shadow 420ms var(--ease)}
-a.card:hover .obj,a.card:focus-visible .obj{transform:translateY(-6px);
+.card:hover .obj,.card:focus-within .obj{transform:translateY(-6px);
   box-shadow:0 6px 18px oklch(0.4 0.08 330 / 0.14),0 30px 64px oklch(0.4 0.08 330 / 0.18)}
 .obj img{width:100%;height:100%;object-fit:cover;transition:transform 700ms var(--ease)}
-a.card:hover .obj img{transform:scale(1.04)}
+.card:hover .obj img{transform:scale(1.04)}
 .cap{display:block;padding-top:0.75rem}
 .cap b{display:block;font-family:var(--display);font-weight:600;letter-spacing:-0.02em;
   font-size:clamp(1rem,0.95rem + 0.3vw,1.1875rem);line-height:1.2}
 .cap span{display:block;font-size:0.8125rem;color:var(--ink-soft);margin-top:0.15rem}
 .cap em{font-style:normal;color:var(--rose);font-weight:600}
-a.card{display:block;text-decoration:none;color:inherit}
-a.card:focus-visible{outline:3px solid var(--violet);outline-offset:5px;border-radius:0.9rem}
+/* The card is an article wrapping a link, so the buttons in the corner are
+   not nested inside an anchor. The link still fills it. */
+.card>a{display:block;text-decoration:none;color:inherit}
+.card>a:focus-visible{outline:3px solid var(--violet);outline-offset:5px;border-radius:0.9rem}
 
 /* Full section headings on Trips and Lists; the feed stays unheaded and the
    map keeps a quiet sub-label because it is an add-on to Trips. */
@@ -152,7 +154,7 @@ a.card:focus-visible{outline:3px solid var(--violet);outline-offset:5px;border-r
    reshapes itself as the archive grows rather than repeating a fixed rhythm. */
 .feed{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(1rem,2.2vw,2rem);
   grid-auto-flow:dense;align-items:start}
-.card{grid-column:span var(--span,4)}
+.card{grid-column:span var(--span,4);position:relative}
 .card .obj{height:var(--h)}
 /* extra photographs peek out like a small pile, per "photos behave like objects" */
 .pile{position:absolute;left:0.7rem;bottom:0.7rem;display:flex;z-index:2}
@@ -161,11 +163,13 @@ a.card:focus-visible{outline:3px solid var(--violet);outline-offset:5px;border-r
   transition:transform 420ms var(--ease)}
 .pile img:nth-child(2){margin-left:-0.6rem;transform:rotate(4deg)}
 .pile img:nth-child(3){margin-left:-0.6rem;transform:rotate(-3deg)}
-a.card:hover .pile img:nth-child(2){transform:rotate(7deg) translateY(-2px)}
-a.card:hover .pile img:nth-child(3){transform:rotate(-6deg) translateY(-2px)}
-.count{position:absolute;top:0.7rem;right:0.7rem;z-index:2;background:oklch(0.2 0.04 320 / 0.6);
+.card:hover .pile img:nth-child(2){transform:rotate(7deg) translateY(-2px)}
+.card:hover .pile img:nth-child(3){transform:rotate(-6deg) translateY(-2px)}
+/* top-left, because top-right now belongs to the edit and delete cluster */
+.count{position:absolute;top:0.7rem;left:0.7rem;z-index:2;background:oklch(0.2 0.04 320 / 0.6);
   backdrop-filter:blur(6px);color:#fff;font-size:0.75rem;font-weight:600;
   padding:0.28rem 0.65rem;border-radius:2rem}
+
 .feedmore{grid-column:1 / -1;padding-top:clamp(0.5rem,2vw,1.5rem)}
 .feedmore a{color:var(--rose);font-weight:600;text-decoration:none;font-size:0.9375rem;
   border-bottom:2px solid currentColor;padding-bottom:2px}
