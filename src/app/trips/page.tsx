@@ -71,7 +71,7 @@ export default async function TripsPage() {
                     { "--span": span, "--h": "clamp(14rem,24vw,22rem)" } as React.CSSProperties
                   }
                 >
-                  <Link href={`/add?trip=${trip.id}`}>
+                  <Link href={`/trips/${trip.id}`}>
                     <span className="obj">
                       {lead ? (
                         // eslint-disable-next-line @next/next/no-img-element -- images.unoptimized is set

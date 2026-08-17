@@ -21,6 +21,14 @@ export type StoredPhoto = {
   width: number;
   height: number;
   alt: string;
+  /**
+   * Hearted by either of them. Not recorded per person: one shared password
+   * means the site cannot actually tell who clicked, and a heart that claims
+   * to know would be lying.
+   *
+   * This is what feeds the banner at the top of a trip.
+   */
+  favorite?: boolean;
 };
 
 export type Author = "marko" | "partner";

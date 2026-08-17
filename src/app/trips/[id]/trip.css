@@ -1,0 +1,191 @@
+/* ============ THE TRIP BANNER ============
+   A few favourited photographs floating independently across the top, each on
+   its own drift — different distance, different tilt, different duration and
+   delay, so nothing ever lines up or beats in time with anything else. The
+   selection is re-rolled server-side on every visit, so a trip does not open
+   the same way twice.
+
+   Only transform is animated, so the whole thing stays on the compositor. */
+
+.tripbanner {
+  position: relative;
+  min-height: clamp(30rem, 74svh, 46rem);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Atmosphere behind the photographs rather than a flat block of colour, so
+   they read as floating in front of something. */
+.tripbanner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(58% 44% at 22% 18%, oklch(0.62 0.19 352 / 0.26), transparent 70%),
+    radial-gradient(52% 48% at 82% 74%, oklch(0.58 0.17 305 / 0.24), transparent 72%),
+    radial-gradient(46% 40% at 60% 8%, oklch(0.84 0.15 78 / 0.22), transparent 70%);
+}
+
+.tripfloat {
+  position: absolute;
+  z-index: 1;
+  width: var(--w);
+  border-radius: 0.85rem;
+  overflow: hidden;
+  box-shadow:
+    0 3px 12px oklch(0.35 0.08 330 / 0.16),
+    0 26px 60px oklch(0.35 0.08 330 / 0.24);
+  transform: rotate(var(--rot));
+  animation: drift var(--dur) var(--ease) var(--delay) infinite;
+  will-change: transform;
+}
+
+.tripfloat img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  aspect-ratio: var(--ratio, 4 / 5);
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(var(--rot));
+  }
+  50% {
+    transform: translate3d(var(--dx), var(--dy), 0) rotate(calc(var(--rot) + var(--dr)));
+  }
+}
+
+/* The title sits above the drift, centred in the band it left clear. */
+.tripbanner__inner {
+  position: relative;
+  z-index: 2;
+  min-height: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 0.9rem;
+  padding: clamp(4rem, 12vh, 8rem) var(--gutter);
+  pointer-events: none;
+}
+
+.tripbanner__inner h1 {
+  font-size: clamp(2.5rem, 1.6rem + 5.4vw, 6rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  max-width: 14ch;
+  text-shadow: 0 2px 30px oklch(0.98 0.01 340 / 0.85);
+}
+
+.tripbanner__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  justify-content: center;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+
+.tripbanner__chip {
+  background: oklch(1 0 0 / 0.66);
+  backdrop-filter: blur(10px);
+  border: 1px solid oklch(1 0 0 / 0.7);
+  padding: 0.42rem 1rem;
+  border-radius: 2rem;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* Small, in the corner, as asked — this page is for looking at. */
+.tripedit {
+  position: absolute;
+  top: clamp(4.5rem, 9vh, 6rem);
+  right: var(--gutter);
+  z-index: 5;
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+  text-decoration: none;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.45rem 1rem;
+  border-radius: 2rem;
+  color: var(--ink);
+  background: oklch(1 0 0 / 0.8);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 3px 14px oklch(0.35 0.08 330 / 0.2);
+  transition:
+    transform 200ms var(--ease),
+    background-color 200ms var(--ease);
+}
+
+.tripedit:hover {
+  transform: translateY(-1px);
+  background: #fff;
+}
+
+.tripedit:focus-visible {
+  outline: 3px solid var(--violet);
+  outline-offset: 3px;
+}
+
+/* ============ EVERYTHING ELSE, BELOW ============ */
+.tripshots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
+  gap: clamp(0.75rem, 1.6vw, 1.25rem);
+}
+
+.shot {
+  position: relative;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  aspect-ratio: 1;
+  background: var(--bone-2);
+  box-shadow: 0 2px 10px oklch(0.4 0.08 330 / 0.1);
+  transition: transform 420ms var(--ease);
+}
+
+.shot:hover {
+  transform: translateY(-4px);
+}
+
+.shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 700ms var(--ease);
+}
+
+.shot:hover img {
+  transform: scale(1.05);
+}
+
+.tripempty {
+  padding: clamp(2rem, 5vw, 3.5rem);
+  border-radius: 1rem;
+  background: oklch(1 0 0 / 0.55);
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .tripbanner {
+    min-height: clamp(26rem, 62svh, 34rem);
+  }
+  /* The two smallest slots are dropped on a phone rather than shrunk into
+     confetti — see the slot table in the page component. */
+  .tripfloat--minor {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tripfloat {
+    animation: none;
+  }
+}

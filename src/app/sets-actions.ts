@@ -19,6 +19,7 @@ function revalidateEverywhere(): void {
   revalidatePath("/");
   revalidatePath("/gallery");
   revalidatePath("/trips");
+  revalidatePath("/trips/[id]", "page");
   revalidatePath("/deleted");
 }
 
@@ -118,6 +119,25 @@ export async function removePhoto(setId: string, photoKey: string): Promise<SetS
 
   revalidateEverywhere();
   return { saved: "Photograph removed." };
+}
+
+/**
+ * Hearts or unhearts one photograph.
+ *
+ * Favourites are not decoration: they are the selection the trip banner draws
+ * from, so this is the one control that changes how a trip opens.
+ */
+export async function toggleFavorite(setId: string, photoKey: string): Promise<void> {
+  if (!(await assertUnlocked())) return;
+
+  await updateRecord("sets", setId, (set) => ({
+    ...set,
+    photos: set.photos.map((photo) =>
+      photo.key === photoKey ? { ...photo, favorite: !photo.favorite } : photo,
+    ),
+  }));
+
+  revalidateEverywhere();
 }
 
 /** Adds more photographs to a set that already exists. */

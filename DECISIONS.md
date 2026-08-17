@@ -74,10 +74,12 @@ The page has two parts:
    uncategorised run, scrollable.
 
 Favouriting is the mechanism that feeds the banner: a small heart in the corner
-of a photograph, markable by either of them. Note his phrasing — "so a set of
-photos from the trip is favorited". Whether the heart marks a **set** or an
-**individual photograph** was not settled and needs asking. The banner wants
-individual photographs; the storage model currently only has sets.
+of a photograph, markable by either of them.
+
+**Resolved, session 3.** His "a set of photos" meant *a few photos*, not the
+stored `StoredSet` unit — and the banner shows them "hovering independently in
+a nice way, not an actual pile". So the heart marks an **individual
+photograph**, and the banner floats them separately rather than stacking them.
 
 Categorisation (us / places / food) is explicitly **later**, not now.
 

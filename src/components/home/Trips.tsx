@@ -48,7 +48,7 @@ export function Trips({ trips, sets }: { trips: StoredTrip[]; sets: StoredSet[] 
               className="card trip"
               style={{ "--span": shape.span, "--h": shape.height } as React.CSSProperties}
             >
-              <Link href={`/trips#${trip.id}`}>
+              <Link href={`/trips/${trip.id}`}>
                 <span className="obj">
                   {lead ? (
                     // eslint-disable-next-line @next/next/no-img-element -- see Hero

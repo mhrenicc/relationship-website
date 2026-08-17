@@ -295,3 +295,48 @@ p {
     pointer-events: auto;
   }
 }
+
+/* The heart in the corner of a photograph. Filled means it can turn up in the
+   banner at the top of its trip, so this is a selection control, not a
+   decoration — it stays legible over any photograph. */
+.heart {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  z-index: 3;
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  line-height: 1;
+  font-size: 1.0625rem;
+  padding: 0.3rem 0.45rem;
+  border-radius: 2rem;
+  color: #fff;
+  background: oklch(0.2 0.04 320 / 0.42);
+  backdrop-filter: blur(6px);
+  text-shadow: 0 1px 3px oklch(0.2 0.04 320 / 0.6);
+  transition:
+    transform 200ms var(--ease-out-expo),
+    background-color 200ms var(--ease-out-expo),
+    color 200ms var(--ease-out-expo);
+}
+
+.heart:hover {
+  transform: scale(1.14);
+  background: oklch(0.2 0.04 320 / 0.62);
+}
+
+.heart:active {
+  transform: scale(0.94);
+}
+
+.heart--on {
+  color: var(--rose);
+  background: oklch(1 0 0 / 0.9);
+  text-shadow: none;
+}
+
+.heart:focus-visible {
+  outline: 3px solid var(--amber);
+  outline-offset: 2px;
+}
