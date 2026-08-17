@@ -72,9 +72,16 @@ those are dead and can go once `/gallery` is rebuilt.
      stores about 1.4 MB across the three variants, so 1 GB holds about 670
      photographs rather than 2,000. If that becomes the binding constraint,
      the levers are R2 (no egress charge) or dropping `full` to ~2200px.
-2. **No edit or delete anywhere.** Everything is append-only. Marko has asked
-   for edit and delete next.
+2. ~~**No edit or delete anywhere.**~~ Done. Every card carries an Edit/Delete
+   pair that appears on hover; `/sets/[id]/edit` and `/trips/[id]/edit` do the
+   editing; `/deleted` restores.
+
+   **Deleting never destroys.** It sets `deletedAt` and every read filters it
+   out. Reads go through `src/lib/records.ts` — a raw `store.read` returns
+   deleted rows, which is the one way to put ghosts back on the site. Stored
+   image files are never removed, not even by Erase.
 3. **`/gallery` still wears the old design.** It is the last route that does.
+   It now carries edit/delete controls, so a rebuild must keep them.
 4. **`/lists` does not exist.** The homepage links to it and the section
    renders placeholder lists; there is no page and no way to create a list.
 5. **Milestones cannot be created.** The ribbon renders them, nothing writes
@@ -96,6 +103,11 @@ those are dead and can go once `/gallery` is rebuilt.
   outside `src/lib/storage/` may learn a provider-specific detail.
 - **The hero shows the newest set's lead photograph.** Marko was surprised by
   this; it is deliberate but worth revisiting.
+- **A trip's banner draws only from favourited photographs**, re-picked on
+  every visit. `/trips/[id]` must stay `force-dynamic` or the pick freezes and
+  the feature disappears without any error.
+- **The heart is per photograph, and records no person.** One shared password
+  means the site cannot tell who clicked.
 - **`/timeline` is retired.** The ribbon replaced it.
 - **"Posting as" is a label, not authentication.** One shared password means
   either person could post as the other.
