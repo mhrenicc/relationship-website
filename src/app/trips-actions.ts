@@ -4,19 +4,23 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE_NAME, isValidSessionToken } from "@/lib/auth";
+import { deleteRecord, readLive, restoreRecord, updateRecord } from "@/lib/records";
 import { getPhotoStore, type StoredTrip } from "@/lib/storage";
 
-export type TripState = { error?: string; added?: string };
+export type TripState = { error?: string; added?: string; saved?: string };
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
-export async function addTrip(_prev: TripState, formData: FormData): Promise<TripState> {
-  // Server Actions are public endpoints, so the gate is re-checked here.
+/** Server Actions are public endpoints, so every one re-checks the gate. */
+async function assertUnlocked(): Promise<boolean> {
   const cookieStore = await cookies();
-  if (!isValidSessionToken(cookieStore.get(SESSION_COOKIE_NAME)?.value)) {
-    return { error: "Your session expired. Reload and unlock again." };
-  }
+  return isValidSessionToken(cookieStore.get(SESSION_COOKIE_NAME)?.value);
+}
 
+/** Reads and validates the trip fields shared by adding and editing. */
+function readTripFields(formData: FormData):
+  | { error: string }
+  | { name: string; start: string; end: string; note: string; places: string[] } {
   const name = String(formData.get("name") ?? "").trim();
   const start = String(formData.get("start") ?? "").trim();
   const end = String(formData.get("end") ?? "").trim();
@@ -35,6 +39,18 @@ export async function addTrip(_prev: TripState, formData: FormData): Promise<Tri
   }
   if (places.length === 0) return { error: "Add at least one place." };
 
+  return { name, start, end, note, places };
+}
+
+export async function addTrip(_prev: TripState, formData: FormData): Promise<TripState> {
+  if (!(await assertUnlocked())) {
+    return { error: "Your session expired. Reload and unlock again." };
+  }
+
+  const fields = readTripFields(formData);
+  if ("error" in fields) return fields;
+  const { name, start, end, note, places } = fields;
+
   const trip: StoredTrip = {
     id: randomUUID(),
     name,
@@ -46,10 +62,75 @@ export async function addTrip(_prev: TripState, formData: FormData): Promise<Tri
   };
 
   const store = getPhotoStore();
+  // Writes go through the store rather than readLive, so a deleted trip is not
+  // dropped from the file as a side effect of adding a new one.
   const existing = await store.read("trips");
   await store.write("trips", [...existing, trip]);
 
   revalidatePath("/");
   revalidatePath("/trips");
   return { added: name };
+}
+
+export async function updateTrip(_prev: TripState, formData: FormData): Promise<TripState> {
+  if (!(await assertUnlocked())) {
+    return { error: "Your session expired. Reload and unlock again." };
+  }
+
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) return { error: "Nothing to save." };
+
+  const fields = readTripFields(formData);
+  if ("error" in fields) return fields;
+  const { name, start, end, note, places } = fields;
+
+  const found = await updateRecord("trips", id, (trip) => ({
+    ...trip,
+    name,
+    places,
+    start,
+    end,
+    ...(note ? { note } : { note: undefined }),
+  }));
+
+  if (!found) return { error: "That trip no longer exists." };
+
+  revalidatePath("/");
+  revalidatePath("/trips");
+  revalidatePath("/deleted");
+  return { saved: name };
+}
+
+/**
+ * Hides a trip and releases its photographs into the feed.
+ *
+ * Deleting a container must not destroy its contents — that was decided
+ * explicitly. The sets keep their `tripId`, so restoring the trip picks them
+ * straight back up; only `inFeed` is forced on, so the photographs stay
+ * visible somewhere rather than being stranded behind a trip nobody can reach.
+ */
+export async function deleteTrip(id: string): Promise<void> {
+  if (!(await assertUnlocked())) return;
+
+  await deleteRecord("trips", id);
+
+  const sets = await readLive("sets");
+  for (const set of sets) {
+    if (set.tripId === id && !set.inFeed) {
+      await updateRecord("sets", set.id, (row) => ({ ...row, inFeed: true }));
+    }
+  }
+
+  revalidatePath("/");
+  revalidatePath("/trips");
+  revalidatePath("/gallery");
+  revalidatePath("/deleted");
+}
+
+export async function restoreTrip(id: string): Promise<void> {
+  if (!(await assertUnlocked())) return;
+  await restoreRecord("trips", id);
+  revalidatePath("/");
+  revalidatePath("/trips");
+  revalidatePath("/deleted");
 }
