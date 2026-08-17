@@ -11,7 +11,7 @@ export type Moment = Photo & {
 
 export const siteConfig = {
   partnerOne: "Marko",
-  partnerTwo: "Partner",
+  partnerTwo: "Ita",
   /**
    * 20 August 2021, per Marko — the day and month come from the "Met" moment
    * he added himself, the year from him confirming it was 2021. Everything
