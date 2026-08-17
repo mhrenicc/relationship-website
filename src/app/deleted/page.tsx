@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { purge } from "@/app/deleted-actions";
+import { restorePlace } from "@/app/places-actions";
 import { restoreSet } from "@/app/sets-actions";
 import { restoreTrip } from "@/app/trips-actions";
 import { Nav } from "@/components/Nav";
@@ -18,8 +19,12 @@ const formatDate = (iso: string) =>
   }).format(new Date(iso));
 
 export default async function DeletedPage() {
-  const [sets, trips] = await Promise.all([readDeleted("sets"), readDeleted("trips")]);
-  const isEmpty = sets.length === 0 && trips.length === 0;
+  const [sets, trips, places] = await Promise.all([
+    readDeleted("sets"),
+    readDeleted("trips"),
+    readDeleted("places"),
+  ]);
+  const isEmpty = sets.length === 0 && trips.length === 0 && places.length === 0;
 
   return (
     <>
@@ -76,6 +81,28 @@ export default async function DeletedPage() {
                       when={trip.deletedAt ? formatDate(trip.deletedAt) : "recently"}
                       onRestore={restoreTrip.bind(null, trip.id)}
                       onPurge={purge.bind(null, "trips", trip.id)}
+                    />
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {places.length > 0 && (
+              <section>
+                <h2 className="mb-4 text-[length:var(--text-lead)] font-semibold">Places</h2>
+                <ul className="flex flex-col gap-3">
+                  {places.map((place) => (
+                    <DeletedRow
+                      key={place.id}
+                      title={place.name}
+                      detail={
+                        place.lat === null
+                          ? "Never got a location"
+                          : `${place.country || "On the map"} · ${place.been ? "been" : "still to go"}`
+                      }
+                      when={place.deletedAt ? formatDate(place.deletedAt) : "recently"}
+                      onRestore={restorePlace.bind(null, place.id)}
+                      onPurge={purge.bind(null, "places", place.id)}
                     />
                   ))}
                 </ul>

@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE_NAME, isValidSessionToken } from "@/lib/auth";
-import { readLive, updateRecord } from "@/lib/records";
+import { deleteRecord, readLive, restoreRecord, updateRecord } from "@/lib/records";
 import { getPhotoStore, type Author, type StoredPlace } from "@/lib/storage";
 
 /** Server Actions are public endpoints, so every one re-checks the gate. */
@@ -109,4 +109,28 @@ export async function togglePlace(id: string): Promise<void> {
 
   await updateRecord("places", id, (place) => ({ ...place, been: !place.been }));
   revalidatePath("/");
+}
+
+/**
+ * Takes a place off the map and out of the rail.
+ *
+ * Soft, like everything else: the pin disappears but the record waits in
+ * /deleted. A place is one line of text and a pair of coordinates, so losing
+ * one is cheap — but a delete that behaves differently here than everywhere
+ * else on the site is not worth the inconsistency.
+ */
+export async function deletePlace(id: string): Promise<void> {
+  if (!(await assertUnlocked())) return;
+
+  await deleteRecord("places", id);
+  revalidatePath("/");
+  revalidatePath("/deleted");
+}
+
+export async function restorePlace(id: string): Promise<void> {
+  if (!(await assertUnlocked())) return;
+
+  await restoreRecord("places", id);
+  revalidatePath("/");
+  revalidatePath("/deleted");
 }

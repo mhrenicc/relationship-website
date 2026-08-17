@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
-import { addPlace, togglePlace, type PlaceState } from "@/app/places-actions";
+import { addPlace, deletePlace, togglePlace, type PlaceState } from "@/app/places-actions";
 import type { StoredPlace } from "@/lib/storage";
 
 type Filter = "all" | "been" | "want";
@@ -13,6 +13,7 @@ type Filter = "all" | "been" | "want";
  */
 export function PlacesRail({ places }: { places: StoredPlace[] }) {
   const [filter, setFilter] = useState<Filter>("all");
+  const [confirming, setConfirming] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [state, formAction] = useActionState<PlaceState, FormData>(addPlace, {});
 
@@ -45,6 +46,7 @@ export function PlacesRail({ places }: { places: StoredPlace[] }) {
           <li key={place.id} className={place.been ? "been" : undefined}>
             <button
               type="button"
+              className="railrow"
               disabled={pending}
               aria-label={
                 place.been
@@ -66,6 +68,37 @@ export function PlacesRail({ places }: { places: StoredPlace[] }) {
               </span>
               <span className="tick">{place.been ? "✓" : "+"}</span>
             </button>
+
+            {/* A sibling of the toggle, not inside it — the whole row is
+                already a button, and buttons do not nest. */}
+            {confirming === place.id ? (
+              <span className="raildel__ask">
+                <button
+                  type="button"
+                  className="raildel__yes"
+                  disabled={pending}
+                  onClick={() => {
+                    startTransition(() => void deletePlace(place.id));
+                    setConfirming(null);
+                  }}
+                >
+                  Delete
+                </button>
+                <button type="button" onClick={() => setConfirming(null)}>
+                  Keep
+                </button>
+              </span>
+            ) : (
+              <button
+                type="button"
+                className="raildel"
+                aria-label={`Delete ${place.name}`}
+                title={`Delete ${place.name}`}
+                onClick={() => setConfirming(place.id)}
+              >
+                ×
+              </button>
+            )}
           </li>
         ))}
       </ul>

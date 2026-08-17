@@ -219,12 +219,17 @@ section.places .more{color:var(--amber)}
   transition:transform 260ms var(--ease),background-color 260ms var(--ease),box-shadow 260ms var(--ease)}
 .pin.been i{background:oklch(0.62 0.19 42);border-color:#fff;
   box-shadow:0 0 0 4px oklch(0.62 0.19 42 / 0.25),0 2px 6px oklch(0.3 0.08 40 / 0.4)}
-.pin.on i{transform:scale(1.75);box-shadow:0 0 0 7px oklch(1 0 0 / 0.28)}
+.pin.on i,.pin:hover i{transform:scale(1.75);box-shadow:0 0 0 7px oklch(1 0 0 / 0.28)}
+/* The dot is 14px of hittable area on a whole world map, which is a hard
+   target. This widens the hover to a comfortable circle without drawing one. */
+.pin::after{content:"";position:absolute;left:-15px;top:-15px;width:30px;height:30px;border-radius:50%}
+/* A hovered pin's label must clear its neighbours rather than slide under. */
+.pin:hover{z-index:6}
 .pin b{position:absolute;left:12px;top:-11px;font-size:0.6875rem;font-weight:700;letter-spacing:0.02em;
   white-space:nowrap;opacity:0;transform:translateX(-4px);color:oklch(0.3 0.07 30);
   transition:opacity 200ms var(--ease),transform 200ms var(--ease);
   text-shadow:0 1px 2px oklch(1 0 0 / 0.9)}
-.pin.on b{opacity:1;transform:translateX(0)}
+.pin.on b,.pin:hover b{opacity:1;transform:translateX(0)}
 
 .rail{display:flex;flex-direction:column;background:oklch(1 0 0 / 0.66);border:1px solid oklch(0.86 0.02 340);color:var(--ink);
   border-radius:1rem;padding:clamp(1rem,1.6vw,1.4rem);backdrop-filter:blur(6px);min-height:0}
@@ -237,11 +242,29 @@ section.places .more{color:var(--amber)}
 .rail ul{list-style:none;margin:0;padding:0;overflow-y:auto;flex:1;display:grid;gap:0.15rem;align-content:start;
   /* Bounded so the rail ends level with the map instead of running past it. */
   max-height:clamp(12rem,29vw,23rem)}
-.rail li button{width:100%;display:flex;align-items:center;gap:0.6rem;background:transparent;border:0;
+.rail li{display:flex;align-items:center;gap:0.15rem}
+.railrow{flex:1;min-width:0;display:flex;align-items:center;gap:0.6rem;background:transparent;border:0;
   color:var(--ink);font:inherit;text-align:left;padding:0.45rem 0.5rem;border-radius:0.55rem;cursor:pointer;
   transition:background-color 180ms var(--ease)}
-.rail li button:hover{background:oklch(0.55 0.15 30 / 0.10)}
+.railrow:hover{background:oklch(0.55 0.15 30 / 0.10)}
 .rail li button:focus-visible{outline:3px solid var(--amber);outline-offset:-2px}
+
+/* Deleting a place is rare next to marking one visited, so it stays out of the
+   way until the row is hovered or focused. Touch has no hover, so it is always
+   there on a coarse pointer. */
+.raildel{flex:0 0 auto;background:transparent;border:0;color:var(--ink-soft);font:inherit;font-size:1rem;
+  line-height:1;padding:0.35rem 0.45rem;border-radius:0.45rem;cursor:pointer;opacity:0;
+  transition:opacity 180ms var(--ease),color 180ms var(--ease),background-color 180ms var(--ease)}
+.rail li:hover .raildel,.rail li:focus-within .raildel{opacity:1}
+.raildel:hover{color:oklch(0.5 0.2 25);background:oklch(0.6 0.2 25 / 0.12)}
+.raildel__ask{flex:0 0 auto;display:flex;gap:0.2rem;align-items:center}
+.raildel__ask button{background:transparent;border:0;font:inherit;font-size:0.6875rem;font-weight:700;
+  color:var(--ink-soft);padding:0.3rem 0.45rem;border-radius:0.45rem;cursor:pointer;
+  transition:background-color 160ms var(--ease),color 160ms var(--ease)}
+.raildel__ask button:hover{background:oklch(0.55 0.15 30 / 0.12)}
+.raildel__yes{color:oklch(0.5 0.2 25)!important}
+.raildel__yes:hover{background:oklch(0.6 0.2 25 / 0.16)!important}
+@media (hover:none){ .raildel{opacity:1} }
 .dot{flex:0 0 auto;width:0.6rem;height:0.6rem;border-radius:50%;border:2px solid var(--ink-soft);box-sizing:border-box}
 .been .dot{background:oklch(0.62 0.19 42);border-color:oklch(0.62 0.19 42)}
 .nm{font-size:0.875rem;font-weight:600;line-height:1.3}
