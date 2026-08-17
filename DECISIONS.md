@@ -55,6 +55,10 @@ file.
 | 33 | Photographs inside a trip can be **favourited by either person**, via a small heart in the corner | Session 3 |
 | 34 | The trip page opens with a **banner of favourited photographs, re-randomised on every visit** | Session 3 |
 | 35 | Trip photographs are **uncategorised for now**; us / places / food categories come later | Session 3 |
+| 36 | Places can be **deleted from the map**, and hovering a pin shows its name | Session 3 |
+| 37 | Adding to the timeline is a **small link in the footer corner**, beside "Add something" — never a whole screen | Session 3 |
+| 38 | A moment is **text, date, and a significant toggle**. Nothing more | Session 3 |
+| 39 | **Significant** moments show their name permanently; the rest are **dots you hover** to read | Session 3 |
 
 ### The trip page, as described
 

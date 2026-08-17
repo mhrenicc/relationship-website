@@ -84,8 +84,13 @@ those are dead and can go once `/gallery` is rebuilt.
    It now carries edit/delete controls, so a rebuild must keep them.
 4. **`/lists` does not exist.** The homepage links to it and the section
    renders placeholder lists; there is no page and no way to create a list.
-5. **Milestones cannot be created.** The ribbon renders them, nothing writes
-   them.
+5. ~~**Milestones cannot be created.**~~ Done. "Add to timeline" in the
+   homepage footer opens a corner panel: text, date, and a significant toggle.
+   Significant moments are the large marks that always show their name;
+   everything else is a quiet dot you hover to read, which is what lets the
+   ribbon carry years of small things without becoming a wall of labels.
+   Deleting is in the same panel; restoring is under Moments in `/deleted`.
+   Editing an existing moment is the one gap.
 6. **Places added before geocoding existed** have `lat: null` and show as
    "Needs a location" with no way to fix them. A re-geocode action would clear
    this.

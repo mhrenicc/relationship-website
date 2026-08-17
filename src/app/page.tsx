@@ -3,6 +3,7 @@ import { Feed } from "@/components/home/Feed";
 import { Hero } from "@/components/home/Hero";
 import { HomeNav } from "@/components/home/HomeNav";
 import { Lists } from "@/components/home/Lists";
+import { MomentAdd } from "@/components/home/MomentAdd";
 import { Places } from "@/components/home/Places";
 import { Ribbon } from "@/components/home/Ribbon";
 import { Trips } from "@/components/home/Trips";
@@ -96,6 +97,7 @@ export default async function Home() {
         <span>Ours, and nobody else&rsquo;s.</span>
         <span>
           <Link href="/add">Add something</Link> ·{" "}
+          <MomentAdd moments={milestones} /> ·{" "}
           <Link href="/deleted">Recently deleted</Link> ·{" "}
           <LiveCounter since={siteConfig.togetherSince} initialDays={days} />
         </span>

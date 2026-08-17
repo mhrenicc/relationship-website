@@ -96,6 +96,12 @@ export type StoredMilestone = Deletable & {
   date: string;
   text: string;
   addedBy: Author;
+  /**
+   * Significant moments are the large marks whose text is always readable.
+   * Everything else is a quiet dot you hover to read, so the ribbon can hold
+   * a lot without becoming a wall of labels.
+   */
+  significant: boolean;
   createdAt: string;
 };
 

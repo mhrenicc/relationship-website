@@ -62,10 +62,11 @@ export const placeholderLists: StoredList[] = [
 ];
 
 export const placeholderMilestones: StoredMilestone[] = [
-  { id: "p-ms-1", date: "2024-01-06", text: "We met", addedBy: "marko", createdAt: "2024-01-06" },
-  { id: "p-ms-2", date: "2024-03-19", text: "First kiss", addedBy: "partner", createdAt: "2024-03-19" },
-  { id: "p-ms-3", date: "2024-09-01", text: "Moved in", addedBy: "marko", createdAt: "2024-09-01" },
-  { id: "p-ms-4", date: "2025-07-14", text: "The wrong ferry", addedBy: "partner", createdAt: "2025-07-14" },
+  { id: "p-ms-1", date: "2024-01-06", text: "We met", addedBy: "marko", significant: true, createdAt: "2024-01-06" },
+  { id: "p-ms-2", date: "2024-03-19", text: "First kiss", addedBy: "partner", significant: true, createdAt: "2024-03-19" },
+  { id: "p-ms-3", date: "2024-09-01", text: "Moved in", addedBy: "marko", significant: true, createdAt: "2024-09-01" },
+  // Quiet by design, so the two weights are both visible before anything real exists.
+  { id: "p-ms-4", date: "2025-07-14", text: "The wrong ferry", addedBy: "partner", significant: false, createdAt: "2025-07-14" },
 ];
 
 export const placeholderPlaces: StoredPlace[] = [

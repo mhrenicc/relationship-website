@@ -56,11 +56,15 @@ export function Ribbon({ met, today, milestones }: Props) {
             // Labels alternate above and below so neighbours never collide.
             const side = index % 2 === 0 ? "up" : "down";
             const edge = index === 0 ? " first" : index === ordered.length - 1 ? " last" : "";
+            // Significant moments carry their name permanently. The rest are
+            // dots you hover, which is what lets the ribbon hold years of
+            // small things without turning into a wall of text.
+            const weight = milestone.significant ? " mk--ms" : " mk--quiet";
 
             return (
               <span
                 key={milestone.id}
-                className={`mk mk--ms ${side}${edge}`}
+                className={`mk${weight} ${side}${edge}`}
                 style={{ left: `${pct(milestone.date)}%` }}
                 title={`${milestone.text} · ${formatDate(milestone.date)}`}
               >
