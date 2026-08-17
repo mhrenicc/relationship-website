@@ -11,6 +11,19 @@ function getSecret(): string {
   return secret;
 }
 
+/**
+ * Whether the gate can work at all.
+ *
+ * Without this, a deployment missing SITE_PASSWORD renders its login page
+ * perfectly — the no-cookie path returns false before ever reading the secret
+ * — and then throws an opaque 500 the moment someone submits. The page looks
+ * fine and the only broken thing is the one action it exists to perform, which
+ * is the worst possible place to hide a configuration error.
+ */
+export function isGateConfigured(): boolean {
+  return Boolean(process.env.SITE_PASSWORD);
+}
+
 function sign(payload: string): string {
   return createHmac("sha256", getSecret()).update(payload).digest("hex");
 }

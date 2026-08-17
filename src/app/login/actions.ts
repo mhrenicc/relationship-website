@@ -2,11 +2,25 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createSessionToken, verifyPassword, SESSION_COOKIE_NAME } from "@/lib/auth";
+import {
+  createSessionToken,
+  isGateConfigured,
+  verifyPassword,
+  SESSION_COOKIE_NAME,
+} from "@/lib/auth";
 
 export type LoginState = { error?: string };
 
 export async function login(_prevState: LoginState, formData: FormData): Promise<LoginState> {
+  // Checked before reading the password, so a deployment without
+  // SITE_PASSWORD says so instead of throwing a blank 500 on submit.
+  if (!isGateConfigured()) {
+    return {
+      error:
+        "This deployment has no SITE_PASSWORD set. Add it in the hosting project's environment variables and redeploy.",
+    };
+  }
+
   const password = formData.get("password");
 
   if (typeof password !== "string" || password.length === 0) {

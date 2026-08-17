@@ -47,7 +47,7 @@ earlier will be wrong about this.
 ## Auth
 
 - One shared password in `SITE_PASSWORD` (`.env.local`, gitignored). Currently
-  `change-me-please`, never changed.
+  a placeholder; the real one lives only in environment variables.
 - `src/proxy.ts` redirects any unauthenticated request to `/login`, matching everything
   except `_next/static`, `_next/image`, `favicon.ico`, and `/login`.
 - Session is an HMAC-SHA256 token in an httpOnly, SameSite=Lax cookie, 60 days.

@@ -123,8 +123,11 @@ those are dead and can go once `/gallery` is rebuilt.
 
 1. Create the Vercel project from `mhrenicc/relationship-website` (private).
 2. Create a Blob store, copy `BLOB_READ_WRITE_TOKEN`.
-3. Set `BLOB_READ_WRITE_TOKEN` and `SITE_PASSWORD` — the password is still
-   `change-me-please`.
+3. Set `BLOB_READ_WRITE_TOKEN` and `SITE_PASSWORD`.
+
+**Never write the real password into this repo.** It is public. The password
+lives only in `.env.local` (gitignored) and in the hosting project's
+environment variables.
 
 **Deploy before loading real photographs.** Local uploads write to the
 filesystem; production writes to Blob. They are separate stores and nothing

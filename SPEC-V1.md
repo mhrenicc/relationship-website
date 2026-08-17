@@ -203,7 +203,7 @@ Marko must do these; they involve accounts and keys:
 1. Create the Vercel project from the GitHub repo.
 2. Create a Blob store, copy `BLOB_READ_WRITE_TOKEN`.
 3. Set `BLOB_READ_WRITE_TOKEN` and `SITE_PASSWORD` in project environment
-   variables. The password is still `change-me-please`.
+   variables. The real password belongs in those, never in this repo.
 
 Then: verify with two or three photos, ship resize-on-upload, then load the
 backlog. Deployed does not mean revealed — the gate applies in production and
