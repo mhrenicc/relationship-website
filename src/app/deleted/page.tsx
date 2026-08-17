@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { purge } from "@/app/deleted-actions";
+import { restoreList } from "@/app/lists-actions";
 import { restoreMoment } from "@/app/milestones-actions";
 import { restorePlace } from "@/app/places-actions";
 import { restoreSet } from "@/app/sets-actions";
@@ -20,14 +21,19 @@ const formatDate = (iso: string) =>
   }).format(new Date(iso));
 
 export default async function DeletedPage() {
-  const [sets, trips, places, moments] = await Promise.all([
+  const [sets, trips, places, moments, lists] = await Promise.all([
     readDeleted("sets"),
     readDeleted("trips"),
     readDeleted("places"),
     readDeleted("milestones"),
+    readDeleted("lists"),
   ]);
   const isEmpty =
-    sets.length === 0 && trips.length === 0 && places.length === 0 && moments.length === 0;
+    sets.length === 0 &&
+    trips.length === 0 &&
+    places.length === 0 &&
+    moments.length === 0 &&
+    lists.length === 0;
 
   return (
     <>
@@ -124,6 +130,24 @@ export default async function DeletedPage() {
                       when={moment.deletedAt ? formatDate(moment.deletedAt) : "recently"}
                       onRestore={restoreMoment.bind(null, moment.id)}
                       onPurge={purge.bind(null, "milestones", moment.id)}
+                    />
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {lists.length > 0 && (
+              <section>
+                <h2 className="mb-4 text-[length:var(--text-lead)] font-semibold">Bucketlists</h2>
+                <ul className="flex flex-col gap-3">
+                  {lists.map((list) => (
+                    <DeletedRow
+                      key={list.id}
+                      title={list.name}
+                      detail={`${list.items.length} item${list.items.length === 1 ? "" : "s"}`}
+                      when={list.deletedAt ? formatDate(list.deletedAt) : "recently"}
+                      onRestore={restoreList.bind(null, list.id)}
+                      onPurge={purge.bind(null, "lists", list.id)}
                     />
                   ))}
                 </ul>

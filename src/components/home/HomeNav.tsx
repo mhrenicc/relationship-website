@@ -44,7 +44,7 @@ export function HomeNav() {
       <span className="navlinks">
         <Link href="#feed">Photos</Link>
         <Link href="/trips">Trips</Link>
-        <Link href="/lists">Lists</Link>
+        <Link href="/bucketlists">Bucketlists</Link>
         <Link className="add" href="/add">
           Add
         </Link>

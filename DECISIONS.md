@@ -59,6 +59,7 @@ file.
 | 37 | Adding to the timeline is a **small link in the footer corner**, beside "Add something" — never a whole screen | Session 3 |
 | 38 | A moment is **text, date, and a significant toggle**. Nothing more | Session 3 |
 | 39 | **Significant** moments show their name permanently; the rest are **dots you hover** to read | Session 3 |
+| 40 | Lists are called **bucketlists** | Session 3 |
 
 ### The trip page, as described
 

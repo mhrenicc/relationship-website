@@ -28,7 +28,7 @@ edit it, and do not design in it.
 |---|---|
 | Framework | Next.js 16.3 App Router, React 19, TypeScript strict |
 | Styling | `src/app/globals.css` (tokens, Tailwind v4) + `src/app/home.css` (the ported design) |
-| Routes | `/`, `/add`, `/gallery`, `/trips`, `/login`, `/logout` |
+| Routes | `/`, `/add`, `/gallery`, `/trips`, `/trips/[id]`, `/sets/[id]/edit`, `/bucketlists`, `/deleted`, `/login`, `/logout` |
 | Storage | `src/lib/storage/` behind `PhotoStore`; filesystem locally, Vercel Blob when `BLOB_READ_WRITE_TOKEN` exists |
 | Local data | `data/*.json` and `public/photos/uploads/` — both gitignored |
 
@@ -82,8 +82,15 @@ those are dead and can go once `/gallery` is rebuilt.
    image files are never removed, not even by Erase.
 3. **`/gallery` still wears the old design.** It is the last route that does.
    It now carries edit/delete controls, so a rebuild must keep them.
-4. **`/lists` does not exist.** The homepage links to it and the section
-   renders placeholder lists; there is no page and no way to create a list.
+4. ~~**`/lists` does not exist.**~~ Done, and renamed: they are **bucketlists**
+   now, at `/bucketlists`. Start a list, add lines to it, tick them off,
+   remove a line, delete the list. Restoring is under Bucketlists in
+   `/deleted`. The homepage band is a preview of the two newest and links
+   through; "Open the list →" anchors to that list.
+
+   Items have no deleted state of their own — one line is small enough that a
+   soft delete would cost more than it saves, and the list around it is still
+   recoverable whole.
 5. ~~**Milestones cannot be created.**~~ Done. "Add to timeline" in the
    homepage footer opens a corner panel: text, date, and a significant toggle.
    Significant moments are the large marks that always show their name;
