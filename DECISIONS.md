@@ -47,6 +47,39 @@ file.
 | 25 | Start on **Vercel**, switch storage later if it is not enough | Session 2 |
 | 26 | **Deploy before loading real photos**, because local uploads never reach production | Session 2 |
 | 27 | The design mockup is **retired**. All further work happens in the app | Session 2 |
+| 28 | Everything must be **editable and deletable** from the UI — photos, captions, trips. Adding is not enough | Session 3 |
+| 29 | Deleting must be **recoverable**, not immediate. A deleted thing is hidden, not destroyed | Session 3 |
+| 30 | Deleting a trip **keeps its photographs**. The container goes, the contents stay | Session 3 |
+| 31 | **Trips are a big part of the site** and get developed further than anything else | Session 3 |
+| 32 | A trip opens its **own whole page**, view-only, with a small edit button in the corner | Session 3 |
+| 33 | Photographs inside a trip can be **favourited by either person**, via a small heart in the corner | Session 3 |
+| 34 | The trip page opens with a **banner of favourited photographs, re-randomised on every visit** | Session 3 |
+| 35 | Trip photographs are **uncategorised for now**; us / places / food categories come later | Session 3 |
+
+### The trip page, as described
+
+Decisions 31–35 in his own framing, because the detail matters and a table row
+loses it.
+
+Clicking a trip on `/trips` opens a page for that trip alone. It is **view
+mode, not an editing surface** — the editing lives behind a small button in the
+corner, for when he wants to manage it.
+
+The page has two parts:
+
+1. **A banner at the top**, filling it the way the homepage hero does, showing
+   a few favourited photographs picked at random. **The selection re-rolls on
+   every visit**, so the same trip does not open the same way twice.
+2. **Everything else below**, all the trip's remaining photographs in one
+   uncategorised run, scrollable.
+
+Favouriting is the mechanism that feeds the banner: a small heart in the corner
+of a photograph, markable by either of them. Note his phrasing — "so a set of
+photos from the trip is favorited". Whether the heart marks a **set** or an
+**individual photograph** was not settled and needs asking. The banner wants
+individual photographs; the storage model currently only has sets.
+
+Categorisation (us / places / food) is explicitly **later**, not now.
 
 ## Reversed decisions
 
