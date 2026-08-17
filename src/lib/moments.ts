@@ -1,5 +1,5 @@
 import "server-only";
-import { getPhotoStore } from "@/lib/storage";
+import { readLive } from "@/lib/records";
 import type { StoredSet } from "@/lib/storage";
 
 /**
@@ -9,7 +9,7 @@ import type { StoredSet } from "@/lib/storage";
  * fake.
  */
 export async function getSets(): Promise<{ sets: StoredSet[]; isPlaceholder: boolean }> {
-  const stored = await getPhotoStore().read("sets");
+  const stored = await readLive("sets");
 
   if (stored.length === 0) {
     return { sets: [], isPlaceholder: true };

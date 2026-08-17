@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSets } from "@/lib/moments";
-import { getPhotoStore } from "@/lib/storage";
+import { readLive } from "@/lib/records";
 import { photoSrc } from "@/lib/storage/variants";
 import { TripForm } from "./TripForm";
 import "../home.css";
@@ -20,8 +20,7 @@ const formatRange = (start: string, end: string) => {
 };
 
 export default async function TripsPage() {
-  const store = getPhotoStore();
-  const [trips, { sets }] = await Promise.all([store.read("trips"), getSets()]);
+  const [trips, { sets }] = await Promise.all([readLive("trips"), getSets()]);
 
   const ordered = [...trips].sort((a, b) => b.start.localeCompare(a.start));
 

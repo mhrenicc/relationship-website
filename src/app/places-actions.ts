@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE_NAME, isValidSessionToken } from "@/lib/auth";
+import { readLive, updateRecord } from "@/lib/records";
 import { getPhotoStore, type Author, type StoredPlace } from "@/lib/storage";
 
 /** Server Actions are public endpoints, so every one re-checks the gate. */
@@ -79,7 +80,7 @@ export async function addPlace(_prev: PlaceState, formData: FormData): Promise<P
   if (name.length > 80) return { error: "That name is too long." };
 
   const store = getPhotoStore();
-  const places = await store.read("places");
+  const places = await readLive("places");
 
   if (places.some((place) => place.name.toLowerCase() === name.toLowerCase())) {
     return { error: `${name} is already on the list.` };
@@ -106,12 +107,6 @@ export async function addPlace(_prev: PlaceState, formData: FormData): Promise<P
 export async function togglePlace(id: string): Promise<void> {
   if (!(await assertUnlocked())) return;
 
-  const store = getPhotoStore();
-  const places = await store.read("places");
-
-  await store.write(
-    "places",
-    places.map((place) => (place.id === id ? { ...place, been: !place.been } : place)),
-  );
+  await updateRecord("places", id, (place) => ({ ...place, been: !place.been }));
   revalidatePath("/");
 }

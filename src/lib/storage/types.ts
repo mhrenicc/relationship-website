@@ -26,12 +26,26 @@ export type StoredPhoto = {
 export type Author = "marko" | "partner";
 
 /**
+ * Every record carries this. Deleting sets `deletedAt` and hides the record
+ * everywhere; it does not remove it, and it never removes the stored image
+ * files. On the deployed site a hard delete is unrecoverable, and the whole
+ * point of this archive is that things in it do not get lost by accident.
+ *
+ * Reads must go through `src/lib/records.ts`, which filters these out. A raw
+ * `store.read` returns deleted rows too.
+ */
+export type Deletable = {
+  id: string;
+  /** ISO timestamp of the deletion. Absent means live. */
+  deletedAt?: string;
+};
+
+/**
  * A set: several photographs, one caption, one date. Sets rather than single
  * photos because a backlog added one at a time is data entry, and data entry
  * is how the archive dies.
  */
-export type StoredSet = {
-  id: string;
+export type StoredSet = Deletable & {
   photos: StoredPhoto[];
   caption: string;
   /** The day it happened, not the day it was uploaded. */
@@ -44,8 +58,7 @@ export type StoredSet = {
   createdAt: string;
 };
 
-export type StoredTrip = {
-  id: string;
+export type StoredTrip = Deletable & {
   name: string;
   places: string[];
   start: string;
@@ -54,8 +67,7 @@ export type StoredTrip = {
   createdAt: string;
 };
 
-export type StoredPlace = {
-  id: string;
+export type StoredPlace = Deletable & {
   name: string;
   country: string;
   /** Null until geocoded; the UI must show these as needing a location rather than pinning them wrongly. */
@@ -66,15 +78,13 @@ export type StoredPlace = {
   createdAt: string;
 };
 
-export type StoredList = {
-  id: string;
+export type StoredList = Deletable & {
   name: string;
   items: { id: string; text: string; done: boolean; addedBy: Author }[];
   createdAt: string;
 };
 
-export type StoredMilestone = {
-  id: string;
+export type StoredMilestone = Deletable & {
   date: string;
   text: string;
   addedBy: Author;

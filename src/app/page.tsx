@@ -17,21 +17,20 @@ import {
   placeholderSets,
   placeholderTrips,
 } from "@/lib/placeholder";
+import { readLive } from "@/lib/records";
 import { siteConfig } from "@/lib/site-config";
-import { getPhotoStore } from "@/lib/storage";
 import { photoSrc } from "@/lib/storage/variants";
 import "./home.css";
 
 export default async function Home() {
-  const store = getPhotoStore();
   const { sets: feedSets } = await getFeedSets();
   const { sets: allSets } = await getSets();
 
   const [storedTrips, storedLists, storedMilestones, storedPlaces] = await Promise.all([
-    store.read("trips"),
-    store.read("lists"),
-    store.read("milestones"),
-    store.read("places"),
+    readLive("trips"),
+    readLive("lists"),
+    readLive("milestones"),
+    readLive("places"),
   ]);
 
   // Placeholder-ness is decided per collection, not globally. Adding the first
