@@ -42,10 +42,20 @@ export async function addList(_prev: ListState, formData: FormData): Promise<Lis
   };
 
   const store = getPhotoStore();
-  // Straight to the store rather than readLive, so a deleted list is not
-  // dropped from the file as a side effect of adding a new one.
-  const existing = await store.read("lists");
-  await store.write("lists", [...existing, list]);
+  try {
+    // Straight to the store rather than readLive, so a deleted list is not
+    // dropped from the file as a side effect of adding a new one.
+    const existing = await store.read("lists");
+    await store.write("lists", [...existing, list]);
+  } catch (error: unknown) {
+    // A throwing Server Action returns a bare 500 with no body, which tells
+    // nobody anything. Storage failures are the realistic cause here — a
+    // read-only filesystem when deployed without a blob token, or the blob
+    // write being refused — so say which.
+    console.error("Saving a list failed", error);
+    const detail = error instanceof Error ? error.message : String(error);
+    return { error: `Could not save that list. ${detail}` };
+  }
 
   revalidateEverywhere();
   return { added: name };
