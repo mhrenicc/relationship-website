@@ -144,9 +144,9 @@ Not Marko's decisions. A future build may revisit any of these freely.
 Currently in the repo and explicitly **not** chosen by Marko. Replace without asking.
 
 - Partner name is literally `"Partner"`; the real name has not been given.
-- `togetherSince` was `2024-01-01`. **Session 3: Marko gave "2021 august someday"**, so it
-  is now `2021-08-01` — the month and year are his, the **day is a guess**. Note the
-  conflict: the "Met" moment he added himself is dated **20 August 2020**. One of the two is
-  wrong and it has not been settled.
+- ~~`togetherSince` is `2024-01-01`, a placeholder.~~ **Settled, session 3: 20 August 2021.**
+  He gave "2021 august someday", then confirmed the year against the "Met" moment he had
+  added himself — that moment's day and month were right and only its year was wrong. This
+  is no longer placeholder content; it is his.
 - All photographs are stock, from Lorem Picsum.
 - Place names in the marquee are invented Croatian and Central European cities.

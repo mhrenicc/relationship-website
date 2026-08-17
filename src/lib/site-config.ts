@@ -13,11 +13,12 @@ export const siteConfig = {
   partnerOne: "Marko",
   partnerTwo: "Partner",
   /**
-   * August 2021, per Marko. The **day** is a guess — he gave the month and the
-   * year and said "someday". Change the 01 and everything follows: the days
-   * counter, the left end of the ribbon, and the whole timeline scale.
+   * 20 August 2021, per Marko — the day and month come from the "Met" moment
+   * he added himself, the year from him confirming it was 2021. Everything
+   * follows from this: the days counter, the left end of the ribbon, and the
+   * whole timeline scale.
    */
-  togetherSince: "2021-08-01",
+  togetherSince: "2021-08-20",
 };
 
 /**
