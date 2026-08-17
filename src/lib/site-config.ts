@@ -12,7 +12,12 @@ export type Moment = Photo & {
 export const siteConfig = {
   partnerOne: "Marko",
   partnerTwo: "Partner",
-  togetherSince: "2024-01-01",
+  /**
+   * August 2021, per Marko. The **day** is a guess — he gave the month and the
+   * year and said "someday". Change the 01 and everything follows: the days
+   * counter, the left end of the ribbon, and the whole timeline scale.
+   */
+  togetherSince: "2021-08-01",
 };
 
 /**

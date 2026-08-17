@@ -20,20 +20,45 @@ const formatDate = (iso: string) =>
  * until you actually attend to it.
  */
 export function Ribbon({ met, today, milestones }: Props) {
-  const start = new Date(met).getTime();
-  const span = new Date(today).getTime() - start;
-  if (span <= 0) return null;
+  const metTime = new Date(met).getTime();
+  const todayTime = new Date(today).getTime();
+  if (!Number.isFinite(metTime) || !Number.isFinite(todayTime)) return null;
+
+  const ordered = [...milestones].sort((a, b) => a.date.localeCompare(b.date));
+
+  /**
+   * The scale stretches to hold whatever exists rather than being fixed to
+   * "the day we met" through "today". Anchored to those two, a moment dated
+   * before they met projected to a negative percentage and rendered off the
+   * left edge — present in the markup, invisible on the page, with nothing to
+   * indicate it had been dropped. Anything dated ahead of today did the same
+   * off the right.
+   */
+  const moments = ordered
+    .map((milestone) => new Date(milestone.date).getTime())
+    .filter((time) => Number.isFinite(time));
+
+  const start = Math.min(metTime, ...moments);
+  const end = Math.max(todayTime, ...moments);
+  // A single-day range would divide by zero; one day is the smallest sane span.
+  const span = Math.max(end - start, 86_400_000);
 
   const pct = (iso: string) => ((new Date(iso).getTime() - start) / span) * 100;
-  const days = Math.round(span / 86_400_000);
 
-  const startYear = new Date(met).getFullYear();
-  const endYear = new Date(today).getFullYear();
-  const years = Array.from({ length: endYear - startYear }, (_, i) => startYear + 1 + i)
+  // Days together stays met-to-today. Widening the scale does not lengthen the
+  // relationship.
+  const days = Math.max(0, Math.round((todayTime - metTime) / 86_400_000));
+
+  const startYear = new Date(start).getFullYear();
+  const endYear = new Date(end).getFullYear();
+  const years = Array.from({ length: Math.max(0, endYear - startYear) }, (_, i) => startYear + 1 + i)
     .map((year) => ({ year, x: pct(`${year}-01-01`) }))
     .filter(({ x }) => x > 1 && x < 99);
 
-  const ordered = [...milestones].sort((a, b) => a.date.localeCompare(b.date));
+  // Once the ribbon reaches back before they met, the day they met stops being
+  // the left edge and becomes a point on the line worth marking.
+  const metInside = start < metTime;
+  const endsToday = end <= todayTime;
 
   return (
     <div className="ribbon" id="ribbon">
@@ -77,8 +102,17 @@ export function Ribbon({ met, today, milestones }: Props) {
             );
           })}
 
-          <span className="cap2 cap2--a">{formatDate(met)}</span>
-          <span className="cap2 cap2--b">Today</span>
+          {metInside && (
+            <span className="gl gl--met" style={{ left: `${pct(met)}%` }}>
+              <b>Us</b>
+            </span>
+          )}
+
+          {/* The caps name the actual ends of the line, whatever they are now. */}
+          <span className="cap2 cap2--a">{formatDate(new Date(start).toISOString())}</span>
+          <span className="cap2 cap2--b">
+            {endsToday ? "Today" : formatDate(new Date(end).toISOString())}
+          </span>
         </div>
       </div>
     </div>

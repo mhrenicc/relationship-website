@@ -307,6 +307,10 @@ section.places .more{color:var(--amber)}
   background:var(--ink);opacity:0.10}
 .gl b{position:absolute;top:100%;left:0;transform:translate(-50%,0.4rem);font-size:0.625rem;
   letter-spacing:0.1em;font-weight:700;color:var(--ink-soft);opacity:0.7}
+/* Only drawn once the ribbon reaches back past the day they met, at which
+   point that day stops being the left edge and becomes a point on the line. */
+.gl--met{background:var(--rose);opacity:0.4;width:2px}
+.gl--met b{color:var(--rose);opacity:1}
 
 .mk{position:absolute;top:50%;width:0;height:0}
 /* quiet entries: photographs and days that were just days */
