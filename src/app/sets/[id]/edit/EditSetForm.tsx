@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
+import { uploadPhoto } from "@/app/add/actions";
 import { addPhotos, removePhoto, updateSet, type SetState } from "@/app/sets-actions";
-import type { StoredSet, StoredTrip } from "@/lib/storage";
+import { downscale } from "@/lib/downscale";
+import type { StoredPhoto, StoredSet, StoredTrip } from "@/lib/storage";
 import { photoSrc } from "@/lib/storage/variants";
 
 const label = "mb-2 block font-medium text-[var(--color-ink)]";
@@ -86,11 +88,58 @@ function PhotoTile({
 
 export function EditSetForm({ set, trips }: { set: StoredSet; trips: StoredTrip[] }) {
   const [state, formAction, isPending] = useActionState<SetState, FormData>(updateSet, {});
-  const [addState, addAction, isAdding] = useActionState<SetState, FormData>(addPhotos, {});
+  const [addState, setAddState] = useState<SetState>({});
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [photoError, setPhotoError] = useState("");
 
+  const isAdding = progress !== null;
   const problem = state.error || addState.error || photoError;
   const done = state.saved || addState.saved;
+
+  /**
+   * Photographs go up one at a time, each downscaled in the browser first.
+   *
+   * Posting the whole batch to one Server Action is what made this form fail
+   * from a phone: the body is capped at 1MB by Next and near 4.5MB by Vercel,
+   * and a single phone photograph is 3-5MB. This is the same shape /add and
+   * the trip dump already use.
+   */
+  async function addSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const data = new FormData(element);
+    const files = data.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
+
+    if (files.length === 0) {
+      setAddState({ error: "Pick at least one photo." });
+      return;
+    }
+
+    setAddState({});
+    setPhotoError("");
+    setProgress({ done: 0, total: files.length });
+
+    const uploaded: StoredPhoto[] = [];
+    for (const [index, file] of files.entries()) {
+      const smaller = await downscale(file);
+      const one = new FormData();
+      one.set("photo", smaller);
+
+      const result = await uploadPhoto(one);
+      if (result.error || !result.photo) {
+        setProgress(null);
+        setAddState({ error: result.error ?? "That photo could not be processed." });
+        return;
+      }
+      uploaded.push(result.photo);
+      setProgress({ done: index + 1, total: files.length });
+    }
+
+    const outcome = await addPhotos(set.id, uploaded);
+    setProgress(null);
+    setAddState(outcome);
+    if (outcome.saved) element.reset();
+  }
 
   return (
     <>
@@ -194,8 +243,7 @@ export function EditSetForm({ set, trips }: { set: StoredSet; trips: StoredTrip[
           </p>
         )}
 
-        <form action={addAction} className="mt-8 flex flex-col gap-4">
-          <input type="hidden" name="id" value={set.id} />
+        <form onSubmit={addSubmit} className="mt-8 flex flex-col gap-4">
           <div>
             <label htmlFor="photos" className={label}>
               Add more to this entry
@@ -211,7 +259,7 @@ export function EditSetForm({ set, trips }: { set: StoredSet; trips: StoredTrip[
             />
           </div>
           <button type="submit" disabled={isAdding} className={button}>
-            {isAdding ? "Adding…" : "Add photographs"}
+            {progress ? `Uploading ${progress.done} of ${progress.total}…` : "Add photographs"}
           </button>
         </form>
       </section>

@@ -1,12 +1,10 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE_NAME, isValidSessionToken } from "@/lib/auth";
 import * as repo from "@/lib/repo";
 import type { Author, StoredPhoto } from "@/lib/storage";
-import { UnsupportedImageError, processUpload } from "@/lib/storage/images";
 
 /** Server Actions are public endpoints, so every one re-checks the gate. */
 async function assertUnlocked(): Promise<boolean> {
@@ -27,7 +25,6 @@ export type SetState = { error?: string; saved?: string };
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 const AUTHORS = new Set<Author>(["marko", "partner"]);
-const MAX_BYTES = 25 * 1024 * 1024;
 const MAX_FILES = 40;
 
 /**
@@ -140,44 +137,39 @@ export async function toggleFavorite(setId: string, photoKey: string): Promise<v
   revalidateEverywhere();
 }
 
-/** Adds more photographs to a set that already exists. */
-export async function addPhotos(_prev: SetState, formData: FormData): Promise<SetState> {
+/**
+ * Adds photographs that have already been uploaded one at a time.
+ *
+ * It does not take the files. Sending a whole batch to a Server Action is what
+ * made uploading from a phone impossible everywhere else: Next caps the body
+ * at 1MB by default and Vercel near 4.5MB regardless, while a phone photograph
+ * is 3-5MB. The form downscales in the browser and calls `uploadPhoto` per
+ * photograph, exactly as /add and the trip dump do, so this only records them.
+ */
+export async function addPhotos(setId: string, photos: StoredPhoto[]): Promise<SetState> {
   if (!(await assertUnlocked())) {
     return { error: "Your session expired. Reload and unlock again." };
   }
 
-  const id = String(formData.get("id") ?? "").trim();
-  const files = formData.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
-
-  if (!id) return { error: "Nothing to add to." };
-  if (files.length === 0) return { error: "Pick at least one photo." };
-  if (files.length > MAX_FILES) {
-    return { error: `That is ${files.length} photos. Add them in batches of ${MAX_FILES} or fewer.` };
-  }
-  if (files.some((f) => f.size > MAX_BYTES)) {
-    return { error: "One of those is over 25MB. Try a smaller version." };
+  if (!setId) return { error: "Nothing to add to." };
+  if (photos.length === 0) return { error: "Pick at least one photo." };
+  if (photos.length > MAX_FILES) {
+    return { error: `That is ${photos.length} photos. Add them in batches of ${MAX_FILES} or fewer.` };
   }
 
-  const set = await repo.sets.find(id);
+  const set = await repo.sets.find(setId);
   if (!set) return { error: "That entry no longer exists." };
 
   try {
-    const added: StoredPhoto[] = [];
-    for (const file of files) {
-      // UUID key: nothing the uploader controls reaches the path.
-      const photo = await processUpload(file, randomUUID());
-      added.push({ ...photo, alt: set.caption });
-    }
-
-    await repo.sets.update(id, (row) => ({ ...row, photos: [...row.photos, ...added] }));
+    // Alt text follows the caption, as it does everywhere a photograph is made.
+    const added = photos.map((photo) => ({ ...photo, alt: set.caption }));
+    await repo.sets.update(setId, (row) => ({ ...row, photos: [...row.photos, ...added] }));
   } catch (error: unknown) {
-    if (error instanceof UnsupportedImageError) {
-      return { error: `${error.message}. Use JPG, PNG, WebP, AVIF or HEIC.` };
-    }
     console.error("Adding photographs failed", error);
-    return { error: "Saving those failed. Try again." };
+    const detail = error instanceof Error ? error.message : String(error);
+    return { error: `Saving those failed. ${detail}` };
   }
 
   revalidateEverywhere();
-  return { saved: `${files.length} photograph${files.length === 1 ? "" : "s"} added.` };
+  return { saved: `${photos.length} photograph${photos.length === 1 ? "" : "s"} added.` };
 }
