@@ -1,10 +1,10 @@
 "use client";
 
-import { useActionState, useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { StoredTrip } from "@/lib/storage";
-import { addSet, type AddState } from "./actions";
+import { downscale } from "@/lib/downscale";
+import { createSet, uploadPhoto, type AddState } from "./actions";
 
-const initialState: AddState = {};
 
 const field =
   "w-full rounded-[var(--radius)] border border-[var(--color-line)] bg-white px-5 py-3.5 text-[var(--color-ink)] outline-none transition-[border-color,box-shadow] duration-[var(--duration-quick)] focus:border-[var(--color-rose)] focus:shadow-[0_0_0_4px_oklch(0.56_0.22_352/0.15)]";
@@ -137,10 +137,62 @@ type AddFormProps = {
 };
 
 export function AddForm({ trips, preselectedTrip }: AddFormProps) {
-  const [state, formAction, isPending] = useActionState(
-    addSet,
-    initialState,
-  );
+  const [state, setState] = useState<AddState>({});
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const form = useRef<HTMLFormElement>(null);
+  const isPending = progress !== null;
+
+  /**
+   * Photographs go up one at a time, each downscaled first.
+   *
+   * A whole set in one request cannot work: Next caps a Server Action body at
+   * 1MB by default and Vercel caps it near 4.5MB regardless, while a phone
+   * photograph is 3-5MB. Sending them individually removes the ceiling, and
+   * showing progress matters because forty photographs is now forty requests.
+   */
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const data = new FormData(element);
+    const files = data.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
+
+    if (files.length === 0) {
+      setState({ error: "Pick at least one photo." });
+      return;
+    }
+
+    setState({});
+    setProgress({ done: 0, total: files.length });
+
+    const photos = [];
+    for (const [index, file] of files.entries()) {
+      const smaller = await downscale(file);
+      const one = new FormData();
+      one.set("photo", smaller);
+
+      const result = await uploadPhoto(one);
+      if (result.error || !result.photo) {
+        setProgress(null);
+        setState({ error: result.error ?? "That photo could not be processed." });
+        return;
+      }
+      photos.push(result.photo);
+      setProgress({ done: index + 1, total: files.length });
+    }
+
+    const feedValues = data.getAll("inFeed").map(String);
+    const outcome = await createSet(photos, {
+      caption: String(data.get("caption") ?? ""),
+      date: String(data.get("date") ?? ""),
+      addedBy: String(data.get("addedBy") ?? "marko") as "marko" | "partner",
+      tripId: String(data.get("tripId") ?? "") || undefined,
+      inFeed: feedValues.length === 0 ? true : feedValues.includes("on"),
+    });
+
+    setProgress(null);
+    setState(outcome);
+    if (outcome.added) element.reset();
+  }
 
   return (
     <>
@@ -160,7 +212,8 @@ export function AddForm({ trips, preselectedTrip }: AddFormProps) {
       {/* Remounting on success clears every field, including the file input */}
       <form
         key={state.token ?? "new"}
-        action={formAction}
+        ref={form}
+        onSubmit={submit}
         className="flex flex-col gap-6"
       >
         <PhotoField />
@@ -243,7 +296,9 @@ export function AddForm({ trips, preselectedTrip }: AddFormProps) {
           disabled={isPending}
           className="grad-warm self-start rounded-full px-8 py-4 text-lg font-semibold text-white shadow-[var(--shadow-soft)] transition-[transform,box-shadow,opacity] duration-[var(--duration-quick)] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:opacity-95 hover:shadow-[var(--shadow-lift)] active:translate-y-0 disabled:opacity-60"
         >
-          {isPending ? "Saving…" : "Add it"}
+          {progress
+            ? `Uploading ${progress.done} of ${progress.total}…`
+            : "Add it"}
         </button>
       </form>
     </>
