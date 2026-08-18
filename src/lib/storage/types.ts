@@ -141,5 +141,17 @@ export interface PhotoStore {
   /** Stores one already-resized variant and returns its URL. */
   save(bytes: Buffer, key: string, contentType: string): Promise<string>;
   read<C extends Collection>(collection: C): Promise<CollectionShape[C][]>;
-  write<C extends Collection>(collection: C, rows: CollectionShape[C][]): Promise<void>;
+  /**
+   * `allowShrink` must be passed to write fewer rows than are stored.
+   *
+   * Every write here is read-modify-write, so a read that fails or comes back
+   * empty turns the next append into a wipe. Rows are only ever removed by a
+   * deliberate purge, so anything else shrinking the document is a bug, and
+   * the store refuses it rather than destroying the file.
+   */
+  write<C extends Collection>(
+    collection: C,
+    rows: CollectionShape[C][],
+    options?: { allowShrink?: boolean },
+  ): Promise<void>;
 }

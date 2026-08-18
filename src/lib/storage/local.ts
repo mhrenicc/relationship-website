@@ -32,7 +32,20 @@ export const localStore: PhotoStore = {
     }
   },
 
-  async write<C extends Collection>(collection: C, rows: CollectionShape[C][]) {
+  async write<C extends Collection>(
+    collection: C,
+    rows: CollectionShape[C][],
+    options?: { allowShrink?: boolean },
+  ) {
+    if (!options?.allowShrink) {
+      const current = await this.read(collection);
+      if (rows.length < current.length) {
+        throw new Error(
+          `Refusing to write ${rows.length} ${collection} over ${current.length} already stored.`,
+        );
+      }
+    }
+
     await mkdir(DATA_DIR, { recursive: true });
     await writeFile(fileFor(collection), JSON.stringify(rows, null, 2), "utf8");
   },

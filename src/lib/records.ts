@@ -103,6 +103,7 @@ export async function purgeRecord<C extends Collection>(
   const remaining = rows.filter((row) => row.id !== id);
   if (remaining.length === rows.length) return false;
 
-  await store.write(collection, remaining);
+  // The only legitimate shrink: erasing one row for good.
+  await store.write(collection, remaining, { allowShrink: true });
   return true;
 }
