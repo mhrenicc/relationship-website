@@ -51,6 +51,43 @@ those are dead and can go once `/gallery` is rebuilt.
   map, marked visited. Filters and pin highlighting work.
 - The whole homepage design: hero with scroll departure, content-shaped feed,
   trips, map, lists band, ribbon.
+- Dumping photographs into a trip, and deleting one photograph from a trip.
+- Editing a moment by clicking its mark on the ribbon; month-precision dates.
+- Uploading a 10MB photograph from the browser: downscaled and stored as three
+  variants in about five seconds.
+
+## What happened in the session of 18 August
+
+Deployment is live and real data is going in. The session was mostly bugs found
+by using it on a phone, plus one refactor.
+
+**A wipe, and its root cause.** Adding a moment destroyed every moment before
+it. The mechanism was general and affected every collection: each write is
+read-modify-write of one whole JSON document, so any read that returns empty
+when the document is not empty turns the next append into a wipe. Two causes,
+both fixed: `read` swallowed JSON parse failures and returned `[]`, and a null
+from `get()` was treated as "never written" when it is indistinguishable from
+"exists but could not be fetched" — `list()` is now asked, and the read throws
+rather than guessing. A write that would shrink a collection is refused unless
+the caller opts in, which only the purge does; that part is a tripwire, not the
+fix.
+
+**The storage design is still the deeper issue.** Whole-document
+read-modify-write has no atomicity and no versioning, which is also why
+`records.ts` documents that two simultaneous edits can lose one. Per-record
+blobs would remove the class entirely but turn one read per collection into one
+per record on a page that reads five, so it was judged the wrong trade. Revisit
+if it recurs — with the repository in place it is now a change to one file.
+
+**Photo uploads never worked from a phone.** Next caps a Server Action body at
+1MB by default and Vercel near 4.5MB regardless; a phone photograph is 3-5MB.
+Photographs are now downscaled in the browser to a 2800px long edge and
+uploaded **one at a time**, which removes the ceiling rather than raising it.
+`bodySizeLimit` is 4mb purely for headroom.
+
+**`addPhotos` on the set editor still posts a whole batch in one request** and
+will fail from a phone for exactly that reason. It needs the same treatment.
+This is the most likely next bug report.
 
 ## Known problems, in priority order
 
@@ -136,16 +173,55 @@ those are dead and can go once `/gallery` is rebuilt.
 - **The heart is per photograph, and records no person.** One shared password
   means the site cannot tell who clicked.
 - **`/timeline` is retired.** The ribbon replaced it.
+- **Everything reaches storage through `src/lib/repo.ts`.** Actions say
+  `repo.moments.add(...)`, never `store.read`/`store.write`. Nothing outside
+  that file may import `records.ts` or call `getPhotoStore()` — six hand-rolled
+  copies of read-append-write is what allowed the wipe. Imported as a namespace
+  because named imports kept colliding with local variables.
+- **A trip supplies its own metadata.** Dumping photographs into a trip asks
+  for nothing: the caption is the trip name and the date is its start, so the
+  record keeps the same shape as any other set. Grouping them into sets within
+  a trip is deliberately **parked** — they land as a flat list, which is what
+  the trip page renders anyway.
+- **A trip is named by where it was.** There is no separate title field; the
+  location field is the name. Cards suppress the location line when it just
+  repeats the title.
+- **Ticking a bucketlist line is optimistic in both places.** The write takes
+  about two seconds deployed; anything that waits for it reads as broken.
+- **Moments can be dated to a month.** `date` stays a full ISO day and a
+  month-precision moment is stored on the **15th**, which is what puts it
+  mid-month on the ribbon. Only the label changes.
+- **`home.css` element selectors are scoped to `.homeui`.** Next keeps a
+  route's stylesheet in the document across client-side navigations, so a bare
+  `nav` rule restyled every page reached from the homepage. Any page importing
+  `home.css` must wrap its content in that class.
+- **Phone overrides live at the end of `home.css`.** They override rules
+  defined above and CSS resolves ties by source order; a media query placed
+  earlier silently loses.
 - **"Posting as" is a label, not authentication.** One shared password means
   either person could post as the other.
 
 ## Deployment
 
-**Nothing is deployed. No Vercel project exists.** Marko must:
+**It is deployed and in use**, at `relationship-website-three.vercel.app`,
+building from `main`. Real data is going in.
 
-1. Create the Vercel project from `mhrenicc/relationship-website` (private).
-2. Create a Blob store, copy `BLOB_READ_WRITE_TOKEN`.
-3. Set `BLOB_READ_WRITE_TOKEN` and `SITE_PASSWORD`.
+**The Blob store is private.** That was a deliberate choice: a photograph's URL
+is worthless to anyone who has not unlocked the site, where a public store's
+URL works forever once shared or leaked. The cost is that a private blob cannot
+be fetched by URL at all, so `save` returns an app path and
+`/media/[...key]` streams the bytes after checking the session. Writes must
+pass `access: "private"` — passing `"public"` to a private store fails every
+write with a 500, which cost an evening to find.
+
+Two Vercel behaviours worth knowing, both of which looked like bugs in this
+code:
+
+- Environment variables are injected **at build time**, so connecting a store
+  requires a redeploy before the running app can see it.
+- A Server Action ID is baked into each build, so a page loaded from an older
+  deploy posts an ID the new server does not know and gets a **404**. A hard
+  refresh fixes it. This is not a routing problem.
 
 **Never write the real password into this repo.** It is public. The password
 lives only in `.env.local` (gitignored) and in the hosting project's
@@ -157,6 +233,21 @@ migrates between them.
 
 Resized, 1 GB holds roughly 670 photographs; unresized it would hold about 250.
 Exceeding the free tier removes access for 30 days rather than issuing a bill.
+
+## Parked deliberately
+
+- **Grouping photographs within a trip.** They land as a flat list on purpose.
+  Sorting them into sets happens in the app later, because doing it at upload
+  time on a phone is what stops a backlog going up at all. Marko's words: "lets
+  make that decision next time".
+- **Written notes**, sticky-note style. Out of v1 since the design session.
+- **Retaining originals on upload.** Offered and not yet done. Without it, any
+  future change to variant sizes or quality means re-uploading everything,
+  because only the WebP variants are kept.
+- **An export.** There is still no backup of anything except Vercel's own copy.
+  Both of these were flagged as protecting the data he is now entering, and
+  both are still outstanding.
+- **Per-record storage.** See the wipe notes above.
 
 ## Still unanswered
 
@@ -170,6 +261,19 @@ Exceeding the free tier removes access for 30 days rather than issuing a bill.
    which is the constraint that actually bites.
 
 ## Working notes
+
+- **Never use his data as a test fixture.** A photograph was deleted from a
+  real trip to test a delete control. It was recoverable only because
+  `removePhoto` leaves the files on disk and the orphans could be matched back
+  to their batch by file timestamp. Create test content first, and remove it
+  after.
+- **Verify with realistic inputs.** Upload was declared working against
+  flat-colour JPEGs that compressed to 71KB, which never approached the 1MB
+  request limit that broke every real photograph. Generate noise at real
+  dimensions, or use a genuine file.
+- **Fix the general defect, not the reported case.** Marko is explicit about
+  this: a guard around the symptom he noticed leaves the cause in place to
+  resurface elsewhere.
 
 - Screenshots: use the `claude-in-chrome` tools. The in-app browser pane times
   out on screenshot.

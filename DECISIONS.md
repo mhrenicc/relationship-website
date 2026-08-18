@@ -47,6 +47,14 @@ file.
 | 25 | Start on **Vercel**, switch storage later if it is not enough | Session 2 |
 | 26 | **Deploy before loading real photos**, because local uploads never reach production | Session 2 |
 | 27 | The design mockup is **retired**. All further work happens in the app | Session 2 |
+| 28 | Photographs can be **dumped into a trip** with no title, date or per-photo anything — the trip supplies them | Session 3 |
+| 29 | Grouping photographs within a trip is **parked** — they stay a flat list, sorting happens in the app later | Session 3 |
+| 30 | A trip is **named by where it was**; no separate title field | Session 3 |
+| 31 | The Blob store is **private**: a photograph's URL is useless without the password | Session 3 |
+| 32 | Bucketlist lines are tickable **from the homepage band**, not only the list page | Session 3 |
+| 33 | A moment can be dated to a **month** rather than a day; clicking its mark edits it | Session 3 |
+| 34 | Storage is reached only through **repositories** — no hand-rolled read-append-write | Session 3 |
+| 35 | **Fix root causes, not the reported case.** One-case guards around a noticed symptom are not acceptable | Session 3 |
 | 28 | Everything must be **editable and deletable** from the UI — photos, captions, trips. Adding is not enough | Session 3 |
 | 29 | Deleting must be **recoverable**, not immediate. A deleted thing is hidden, not destroyed | Session 3 |
 | 30 | Deleting a trip **keeps its photographs**. The container goes, the contents stay | Session 3 |
