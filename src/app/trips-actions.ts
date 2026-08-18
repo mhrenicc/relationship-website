@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE_NAME, isValidSessionToken } from "@/lib/auth";
 import * as repo from "@/lib/repo";
-import { type StoredTrip } from "@/lib/storage";
+import type { Author, StoredPhoto, StoredTrip } from "@/lib/storage";
 
 export type TripState = { error?: string; added?: string; saved?: string };
 
@@ -133,4 +133,55 @@ export async function restoreTrip(id: string): Promise<void> {
   revalidatePath("/");
   revalidatePath("/trips");
   revalidatePath("/deleted");
+}
+
+
+/**
+ * Dumps photographs straight into a trip.
+ *
+ * No caption, no date, no title: the trip already says where and when, and
+ * being asked for all that per batch on a phone is exactly what stops a
+ * backlog ever going up. The trip supplies the metadata, so the record stays
+ * the same shape as any other set.
+ *
+ * Photographs arrive already uploaded one at a time — see uploadPhoto — because
+ * a whole batch in one request exceeds the body limit.
+ */
+export async function dumpIntoTrip(
+  tripId: string,
+  photos: StoredPhoto[],
+  options: { inFeed: boolean; addedBy: Author },
+): Promise<{ error?: string; added?: string }> {
+  if (!(await assertUnlocked())) {
+    return { error: "Your session expired. Reload and unlock again." };
+  }
+  if (photos.length === 0) return { error: "Pick at least one photo." };
+
+  const trip = await repo.trips.find(tripId);
+  if (!trip) return { error: "That trip no longer exists." };
+
+  try {
+    await repo.sets.add({
+      id: randomUUID(),
+      // Alt text has to say something; the trip is what we know.
+      photos: photos.map((photo) => ({ ...photo, alt: trip.name })),
+      caption: trip.name,
+      date: trip.start,
+      addedBy: options.addedBy === "partner" ? "partner" : "marko",
+      tripId,
+      inFeed: options.inFeed,
+      createdAt: new Date().toISOString(),
+    });
+  } catch (error: unknown) {
+    console.error("Dumping photographs into a trip failed", error);
+    const detail = error instanceof Error ? error.message : String(error);
+    return { error: `Could not save those. ${detail}` };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/trips");
+  revalidatePath(`/trips/${tripId}`);
+  revalidatePath("/gallery");
+
+  return { added: `${photos.length} photograph${photos.length === 1 ? "" : "s"}` };
 }

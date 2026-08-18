@@ -6,6 +6,7 @@ import { getSetsForTrip } from "@/lib/moments";
 import * as repo from "@/lib/repo";
 import type { StoredPhoto } from "@/lib/storage";
 import { photoSrc } from "@/lib/storage/variants";
+import { TripDump } from "./TripDump";
 import "../../home.css";
 import "./trip.css";
 
@@ -151,15 +152,14 @@ export default async function TripPage({ params }: { params: Promise<{ id: strin
       <main className="pad">
         <div className="sechead">
           <h2>Everything from this trip</h2>
-          <Link className="more" href={`/add?trip=${trip.id}`}>
-            Add more →
-          </Link>
         </div>
+
+        <TripDump tripId={trip.id} />
 
         {photos.length === 0 ? (
           <p className="tripempty">
-            Nothing has been added to this trip yet.{" "}
-            <Link href={`/add?trip=${trip.id}`}>Add the first photographs →</Link>
+            Nothing here yet. Dump the photographs in — they need no titles or
+            dates, the trip already says where and when.
           </p>
         ) : (
           <>

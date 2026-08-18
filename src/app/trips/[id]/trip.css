@@ -189,3 +189,19 @@
     animation: none;
   }
 }
+
+/* ============ dumping photographs in ============ */
+.tripdump{margin-bottom:clamp(1.5rem,3vw,2.5rem)}
+.tripdump__row{display:flex;align-items:center;gap:clamp(0.75rem,2vw,1.25rem);flex-wrap:wrap}
+.tripdump__pick{appearance:none;border:0;cursor:pointer;font:inherit;font-weight:700;
+  background:var(--violet);color:#fff;padding:0.7rem 1.4rem;border-radius:2rem;
+  transition:transform 200ms var(--ease),opacity 200ms var(--ease)}
+.tripdump__pick:hover{transform:translateY(-1px)}
+.tripdump__pick:disabled{opacity:0.65;cursor:progress;transform:none}
+.tripdump__pick:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+.tripdump__feed{display:flex;align-items:center;gap:0.5rem;font-weight:600;
+  font-size:0.9375rem;color:var(--ink-soft);cursor:pointer}
+/* Hidden but still focusable by its label; `display:none` would take it out of
+   the accessibility tree entirely. */
+.tripdump__input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.tripdump__msg{margin:0.6rem 0 0;font-size:0.875rem;font-weight:600;color:var(--ink-soft);min-height:1.2em}
