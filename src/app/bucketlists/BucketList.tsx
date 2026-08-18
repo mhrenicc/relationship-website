@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useOptimistic, useState, useTransition } from "react";
 import {
   addItem,
   deleteItem,
@@ -18,17 +18,21 @@ const who = (id: "marko" | "partner") =>
  * One bucketlist, fully working: tick a line off, add a line, remove a line,
  * delete the whole thing.
  *
- * Ticking is optimistic-feeling rather than truly optimistic — the write
- * revalidates three routes, and a checkbox that waits for that reads as
- * broken. `useTransition` keeps the row responsive while it lands.
+ * Ticking is optimistic. The write goes to blob storage, rewrites the whole
+ * document and revalidates three routes — about two seconds deployed — and a
+ * checkbox that waits for all that reads as broken and invites a second click
+ * on something that already worked. The tick lands immediately and the write
+ * follows; if it fails, React discards the optimistic value and the box snaps
+ * back to whatever the server actually has.
  */
 export function BucketList({ list }: { list: StoredList }) {
   const [state, formAction, isAdding] = useActionState<ListState, FormData>(addItem, {});
   const [, startTransition] = useTransition();
   const [isConfirming, setIsConfirming] = useState(false);
+  const [items, setItems] = useOptimistic(list.items);
 
-  const done = list.items.filter((item) => item.done).length;
-  const total = list.items.length;
+  const done = items.filter((item) => item.done).length;
+  const total = items.length;
 
   return (
     <article className="bl">
@@ -72,14 +76,23 @@ export function BucketList({ list }: { list: StoredList }) {
       )}
 
       <ul className="bl__items">
-        {list.items.map((item) => (
+        {items.map((item) => (
           <li key={item.id} className={item.done ? "done" : undefined}>
             <button
               type="button"
               className="bl__tick"
               aria-pressed={item.done}
               aria-label={item.done ? `Undo ${item.text}` : `Tick off ${item.text}`}
-              onClick={() => startTransition(() => void toggleItem(list.id, item.id))}
+              onClick={() =>
+                startTransition(async () => {
+                  setItems(
+                    items.map((row) =>
+                      row.id === item.id ? { ...row, done: !row.done } : row,
+                    ),
+                  );
+                  await toggleItem(list.id, item.id);
+                })
+              }
             >
               <span className="bl__box" aria-hidden="true">
                 {item.done ? "✓" : ""}
@@ -91,7 +104,12 @@ export function BucketList({ list }: { list: StoredList }) {
               type="button"
               className="bl__x"
               aria-label={`Remove ${item.text}`}
-              onClick={() => startTransition(() => void deleteItem(list.id, item.id))}
+              onClick={() =>
+                startTransition(async () => {
+                  setItems(items.filter((row) => row.id !== item.id));
+                  await deleteItem(list.id, item.id);
+                })
+              }
             >
               ×
             </button>

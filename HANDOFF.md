@@ -118,6 +118,12 @@ those are dead and can go once `/gallery` is rebuilt.
 - **A trip's banner draws only from favourited photographs**, re-picked on
   every visit. `/trips/[id]` must stay `force-dynamic` or the pick freezes and
   the feature disappears without any error.
+- **Ticking a bucketlist line is optimistic, in both places.** The write hits
+  blob storage, rewrites the whole document and revalidates three routes —
+  about two seconds deployed. Anything that waits for that reads as broken and
+  invites a second click on something that already worked. The homepage band
+  and the list page each apply the change immediately and let the write follow;
+  a failed write is discarded by React and the box snaps back.
 - **The heart is per photograph, and records no person.** One shared password
   means the site cannot tell who clicked.
 - **`/timeline` is retired.** The ribbon replaced it.

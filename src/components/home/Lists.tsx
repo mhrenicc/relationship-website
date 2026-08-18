@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ListItemToggle } from "@/components/ListItemToggle";
 import { siteConfig } from "@/lib/site-config";
 import type { StoredList } from "@/lib/storage";
 
@@ -33,14 +34,14 @@ export function Lists({ lists }: { lists: StoredList[] }) {
               </span>
               <ul>
                 {list.items.slice(0, 4).map((item) => (
-                  <li key={item.id} className={item.done ? "done" : undefined}>
-                    {/* Presentational only — the real control lives on /bucketlists */}
-                    <span className="box" aria-hidden="true">
-                      {item.done ? "✓" : ""}
-                    </span>
-                    <span className="txt">{item.text}</span>
-                    <span className="who">{who(item.addedBy)}</span>
-                  </li>
+                  <ListItemToggle
+                    key={item.id}
+                    listId={list.id}
+                    itemId={item.id}
+                    text={item.text}
+                    done={item.done}
+                    who={who(item.addedBy)}
+                  />
                 ))}
               </ul>
               <p className="addrow">
