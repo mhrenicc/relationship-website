@@ -52,6 +52,7 @@ those are dead and can go once `/gallery` is rebuilt.
 - The whole homepage design: hero with scroll departure, content-shaped feed,
   trips, map, lists band, ribbon.
 - Dumping photographs into a trip, and deleting one photograph from a trip.
+- Adding photographs to an existing entry from its Edit page.
 - Editing a moment by clicking its mark on the ribbon; month-precision dates.
 - Uploading a 10MB photograph from the browser: downscaled and stored as three
   variants in about five seconds.
@@ -85,9 +86,15 @@ Photographs are now downscaled in the browser to a 2800px long edge and
 uploaded **one at a time**, which removes the ceiling rather than raising it.
 `bodySizeLimit` is 4mb purely for headroom.
 
-**`addPhotos` on the set editor still posts a whole batch in one request** and
-will fail from a phone for exactly that reason. It needs the same treatment.
-This is the most likely next bug report.
+~~**`addPhotos` on the set editor still posts a whole batch in one request.**~~
+Fixed. Adding photographs to an existing entry now downscales in the browser
+and posts one photograph per request, like every other upload path. Verified
+against two 2.7MB 4032x3024 photographs — 5.4MB together, over the ceiling the
+old code hit.
+
+`addSet` in `src/app/add/actions.ts` — the whole-batch version `/add` used
+before the split — has been deleted. Nothing called it, and leaving it there
+invited wiring a form back to the broken shape.
 
 ## Known problems, in priority order
 
