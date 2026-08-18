@@ -6,6 +6,7 @@ import { getSetsForTrip } from "@/lib/moments";
 import * as repo from "@/lib/repo";
 import type { StoredPhoto } from "@/lib/storage";
 import { photoSrc } from "@/lib/storage/variants";
+import { PhotoRemove } from "@/components/PhotoRemove";
 import { TripDump } from "./TripDump";
 import "../../home.css";
 import "./trip.css";
@@ -85,7 +86,12 @@ export default async function TripPage({ params }: { params: Promise<{ id: strin
 
   const sets = await getSetsForTrip(id);
   const photos = sets.flatMap((set) =>
-    set.photos.map((photo) => ({ photo, setId: set.id, caption: set.caption })),
+    set.photos.map((photo) => ({
+      photo,
+      setId: set.id,
+      caption: set.caption,
+      isLastInSet: set.photos.length === 1,
+    })),
   );
 
   // Favourites are what the banner is for. Before anything has been hearted it
@@ -191,16 +197,19 @@ function Shot({
   photo,
   setId,
   caption,
+  isLastInSet,
 }: {
   photo: StoredPhoto;
   setId: string;
   caption: string;
+  isLastInSet: boolean;
 }) {
   return (
     <figure className="shot">
       {/* eslint-disable-next-line @next/next/no-img-element -- images.unoptimized is set */}
       <img src={photoSrc(photo, "thumb")} alt={photo.alt || caption} />
       <FavoriteHeart setId={setId} photoKey={photo.key} isFavorite={Boolean(photo.favorite)} />
+      <PhotoRemove setId={setId} photoKey={photo.key} isLastInSet={isLastInSet} />
     </figure>
   );
 }

@@ -205,3 +205,23 @@
    the accessibility tree entirely. */
 .tripdump__input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 .tripdump__msg{margin:0.6rem 0 0;font-size:0.875rem;font-weight:600;color:var(--ink-soft);min-height:1.2em}
+
+/* ============ removing one photograph ============ */
+/* Top-left: the heart already owns the opposite corner. */
+.shotx{position:absolute;top:0.4rem;left:0.4rem;z-index:3;appearance:none;border:0;cursor:pointer;
+  width:1.6rem;height:1.6rem;border-radius:50%;line-height:1;font-size:1rem;font-weight:700;
+  background:oklch(0.2 0.04 320 / 0.55);color:#fff;backdrop-filter:blur(6px);
+  opacity:0;transition:opacity 200ms var(--ease),background-color 200ms var(--ease)}
+.shot:hover .shotx,.shot:focus-within .shotx{opacity:1}
+.shotx:hover{background:oklch(0.55 0.2 25 / 0.9)}
+.shotx:focus-visible{opacity:1;outline:3px solid var(--amber);outline-offset:2px}
+.shotx--err{display:grid;place-items:center;opacity:1;background:oklch(0.55 0.2 25 / 0.9)}
+/* Touch has no hover, so on a phone the control is simply there. */
+@media (hover:none){ .shotx{opacity:1} }
+
+.shotask{position:absolute;inset-inline:0.4rem;bottom:0.4rem;z-index:3;display:flex;gap:0.35rem;
+  justify-content:center}
+.shotask button{appearance:none;border:0;cursor:pointer;font:inherit;font-size:0.6875rem;
+  font-weight:700;padding:0.3rem 0.6rem;border-radius:2rem}
+.shotask__yes{background:oklch(0.55 0.2 25);color:#fff}
+.shotask__no{background:oklch(1 0 0 / 0.9);color:var(--ink)}
