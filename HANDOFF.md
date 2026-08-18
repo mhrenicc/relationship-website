@@ -97,7 +97,16 @@ those are dead and can go once `/gallery` is rebuilt.
    everything else is a quiet dot you hover to read, which is what lets the
    ribbon carry years of small things without becoming a wall of labels.
    Deleting is in the same panel; restoring is under Moments in `/deleted`.
-   Editing an existing moment is the one gap.
+   Clicking a mark on the ribbon opens the panel on that moment to edit it —
+   the mark dispatches a `moment:edit` event rather than the page threading
+   state down to two distant components.
+
+   A moment can be dated to a **month** instead of a day, for a trip over
+   several days or when the day is long gone. `date` stays a full ISO day so
+   ordering and positioning need no special cases: a month-precision moment is
+   stored on the **15th**, which is what puts it mid-month on the line. Only
+   the label changes. `precision` is absent on older records and reads as
+   "day".
 6. **Places added before geocoding existed** have `lat: null` and show as
    "Needs a location" with no way to fix them. A re-geocode action would clear
    this.

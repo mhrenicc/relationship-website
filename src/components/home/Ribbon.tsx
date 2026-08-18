@@ -1,3 +1,6 @@
+"use client";
+
+import { formatMoment } from "@/lib/moment-date";
 import type { StoredMilestone } from "@/lib/storage";
 
 type Props = {
@@ -86,19 +89,34 @@ export function Ribbon({ met, today, milestones }: Props) {
             // small things without turning into a wall of text.
             const weight = milestone.significant ? " mk--ms" : " mk--quiet";
 
+            const label = formatMoment(milestone);
+            // Placeholders are not his and cannot be edited.
+            const editable = !milestone.id.startsWith("p-ms-");
+
             return (
-              <span
+              <button
                 key={milestone.id}
+                type="button"
+                disabled={!editable}
                 className={`mk${weight} ${side}${edge}`}
                 style={{ left: `${pct(milestone.date)}%` }}
-                title={`${milestone.text} · ${formatDate(milestone.date)}`}
+                title={`${milestone.text} · ${label}`}
+                aria-label={editable ? `Edit ${milestone.text}, ${label}` : `${milestone.text}, ${label}`}
+                onClick={() =>
+                  // The panel lives in the footer, a long way from here in the
+                  // tree. An event beats threading state up through the page
+                  // for one interaction.
+                  window.dispatchEvent(
+                    new CustomEvent("moment:edit", { detail: milestone.id }),
+                  )
+                }
               >
                 <i />
                 <span className="mk__l">
                   <b>{milestone.text}</b>
-                  <span>{formatDate(milestone.date)}</span>
+                  <span>{label}</span>
                 </span>
-              </span>
+              </button>
             );
           })}
 

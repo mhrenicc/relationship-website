@@ -102,6 +102,17 @@ export type StoredMilestone = Deletable & {
    * a lot without becoming a wall of labels.
    */
   significant: boolean;
+  /**
+   * How much of the date is real. "month" is for a trip spanning a few days,
+   * or for something you only remember the month of.
+   *
+   * `date` always stays a full ISO day so ordering and ribbon positioning need
+   * no special cases — a month-precision moment is stored on the 15th, which
+   * is what puts it in the middle of its month on the line. Only the label
+   * changes. Absent on records written before this existed, which read as
+   * "day".
+   */
+  precision?: "day" | "month";
   createdAt: string;
 };
 

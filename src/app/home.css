@@ -465,3 +465,13 @@ footer a{color:var(--rose);font-weight:600;text-decoration:none}
 .momentlist li:hover button,.momentlist li:focus-within button{opacity:1}
 .momentlist button:hover{color:oklch(0.5 0.2 25);background:oklch(0.6 0.2 25 / 0.12)}
 @media (hover:none){ .momentlist button{opacity:1} }
+
+/* Ribbon marks are buttons now: clicking one edits that moment. They must keep
+   looking like marks on a line, not like controls. */
+.mk{appearance:none;background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer}
+.mk:disabled{cursor:default}
+.mk:focus-visible{outline:3px solid var(--amber);outline-offset:6px;border-radius:0.4rem}
+.momentform__actions{display:flex;gap:0.5rem;align-items:center}
+.momentform__cancel{background:none;border:0;color:var(--ink-soft);font:inherit;font-weight:600;
+  cursor:pointer;padding:0.35rem 0.5rem;border-radius:0.4rem}
+.momentform__cancel:hover{color:var(--ink)}
