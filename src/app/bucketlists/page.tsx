@@ -21,6 +21,7 @@ export default async function BucketlistsPage() {
 
   return (
     <>
+      <div className="homeui">
       <nav className="stuck">
         <Link className="wordmark" href="/">
           Us
@@ -63,6 +64,7 @@ export default async function BucketlistsPage() {
           </div>
         )}
       </main>
+      </div>
     </>
   );
 }

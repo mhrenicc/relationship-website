@@ -28,6 +28,7 @@ export default async function TripsPage() {
 
   return (
     <>
+      <div className="homeui">
       <nav className="stuck">
         <Link className="wordmark" href="/">
           Us
@@ -111,6 +112,7 @@ export default async function TripsPage() {
           <TripForm />
         </section>
       </main>
+      </div>
     </>
   );
 }

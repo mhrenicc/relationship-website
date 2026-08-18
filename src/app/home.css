@@ -29,16 +29,16 @@ body{margin:0;color:var(--ink);font-family:var(--sans);
     var(--bone-2) 100%);
   background-attachment:fixed;
   font-size:clamp(1rem,0.97rem + 0.15vw,1.0625rem);line-height:1.65;-webkit-font-smoothing:antialiased}
-h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.0;letter-spacing:-0.035em;margin:0;text-wrap:balance}
+.homeui h1,.homeui h2,.homeui h3{font-family:var(--display);font-weight:600;line-height:1.0;letter-spacing:-0.035em;margin:0;text-wrap:balance}
 p{text-wrap:pretty}
 img{display:block;max-width:100%}
 a{color:inherit}
 
 /* ============ NAV ============ */
-nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
+.homeui nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
     padding:1.125rem var(--gutter);color:#fff;
     transition:background-color 320ms var(--ease),backdrop-filter 320ms var(--ease),color 320ms var(--ease),padding 320ms var(--ease)}
-nav.stuck{background:oklch(0.99 0.01 340 / 0.82);backdrop-filter:blur(14px) saturate(1.4);color:var(--ink);
+.homeui nav.stuck{background:oklch(0.99 0.01 340 / 0.82);backdrop-filter:blur(14px) saturate(1.4);color:var(--ink);
     padding-top:0.75rem;padding-bottom:0.75rem;box-shadow:0 1px 0 oklch(0.5 0.05 330 / 0.12)}
 .wordmark{font-family:var(--display);font-weight:800;font-size:1.375rem;letter-spacing:-0.045em}
 .navlinks{display:flex;gap:1.5rem;align-items:center;font-size:0.9375rem;font-weight:500}
@@ -47,8 +47,8 @@ nav.stuck{background:oklch(0.99 0.01 340 / 0.82);backdrop-filter:blur(14px) satu
 .navlinks .add{background:var(--amber);color:oklch(0.26 0.09 60);padding:0.4rem 1.15rem;border-radius:2rem;
     opacity:1;font-weight:600;transition:transform 200ms var(--ease),box-shadow 200ms var(--ease)}
 .navlinks .add:hover{transform:translateY(-1px);box-shadow:0 6px 18px oklch(0.6 0.15 70 / 0.4)}
-nav a:focus-visible{outline:3px solid var(--amber);outline-offset:4px;border-radius:4px}
-@media (max-width:640px){ .navlinks a:not(.add){display:none} }
+.homeui nav a:focus-visible{outline:3px solid var(--amber);outline-offset:4px;border-radius:4px}
+@media (max-width:640px){ .homeui .navlinks a:not(.add){display:none} }
 
 /* ============ HERO — scroll-driven fade ============ */
 .hero{position:relative;height:100svh;overflow:hidden;background:var(--violet)}
@@ -93,7 +93,7 @@ nav a:focus-visible{outline:3px solid var(--amber);outline-offset:4px;border-rad
 
 /* ============ shared section furniture ============ */
 /* The bar is fixed, so anchored sections must clear it rather than sliding under. */
-section{position:relative;scroll-margin-top:4.5rem}
+.homeui section{position:relative;scroll-margin-top:4.5rem}
 .sechead{display:flex;align-items:end;justify-content:space-between;gap:1.5rem;
   margin-bottom:clamp(2rem,4vw,3.25rem);flex-wrap:wrap}
 .sechead h2{font-size:clamp(2rem,1.3rem + 3vw,3.75rem);font-weight:800}
@@ -296,10 +296,7 @@ section.places .more{color:var(--amber)}
 .track{position:relative;height:clamp(9rem,15vw,12rem);margin:0 var(--gutter);
   opacity:0.5;transition:opacity 600ms var(--ease)}
 .ribbon:hover .track,.ribbon:focus-within .track{opacity:1}
-@media (max-width:760px){
-  .ribbon__scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .track{min-width:44rem;opacity:0.85}
-}
+
 /* The line itself */
 .track::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;border-radius:2px;
   background:linear-gradient(to right,var(--violet),var(--rose) 42%,var(--coral) 74%,var(--amber));
@@ -394,9 +391,9 @@ section.places .more{color:var(--amber)}
 .list .addrow button:hover{transform:translateY(-1px)}
 
 /* ============ FOOTER ============ */
-footer{background:none;padding:clamp(2.5rem,5vw,4rem) var(--gutter);
+.homeui footer{background:none;padding:clamp(2.5rem,5vw,4rem) var(--gutter);
   display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-size:0.875rem;color:var(--ink-soft)}
-footer a{color:var(--rose);font-weight:600;text-decoration:none}
+.homeui footer a{color:var(--rose);font-weight:600;text-decoration:none}
 
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto}
@@ -475,3 +472,32 @@ footer a{color:var(--rose);font-weight:600;text-decoration:none}
 .momentform__cancel{background:none;border:0;color:var(--ink-soft);font:inherit;font-weight:600;
   cursor:pointer;padding:0.35rem 0.5rem;border-radius:0.4rem}
 .momentform__cancel:hover{color:var(--ink)}
+
+/* ============ phone overrides ============ */
+/* Kept at the end on purpose: these override base rules defined above, and
+   CSS resolves ties by source order. A media query placed earlier in the file
+   silently loses, which is how the quiet labels stayed hidden on touch. */
+@media (max-width:760px){
+  .ribbon__scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;
+    /* overflow-x:auto forces overflow-y to auto as well, so anything drawn
+       outside the track is clipped. Labels sit above and below the line, so
+       the scroller has to be taller than the line it holds. */
+    padding-block:clamp(3.5rem,14vw,5rem)}
+  .track{min-width:52rem;opacity:0.9;height:6rem}
+  /* Names on a phone: readable rather than clipped to a stub. */
+  .mk__l{max-width:9rem}
+  .mk--ms.up .mk__l{bottom:2.2rem}
+  .mk--ms.down .mk__l{top:2.2rem}
+  .mk__l b{font-size:0.8125rem;line-height:1.2}
+  .mk__l span{font-size:0.625rem}
+
+  /* A quiet moment reveals its name on hover, which a phone does not have —
+     so on touch the name was unreachable however far the ribbon was dragged.
+     Tapping is taken: it opens the moment to edit. So they are simply shown,
+     lighter and smaller than the significant ones to keep the hierarchy. */
+  .mk--quiet .mk__l{opacity:0.75;transform:none;max-width:7rem}
+  .mk--quiet .mk__l b{font-size:0.6875rem;font-weight:600}
+  .mk--quiet.up .mk__l{bottom:1.1rem}
+  .mk--quiet.down .mk__l{top:1.1rem}
+  .track{height:7.5rem}
+}

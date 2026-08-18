@@ -97,6 +97,7 @@ export default async function TripPage({ params }: { params: Promise<{ id: strin
 
   return (
     <>
+      <div className="homeui">
       <nav className="stuck">
         <Link className="wordmark" href="/">
           Us
@@ -181,6 +182,7 @@ export default async function TripPage({ params }: { params: Promise<{ id: strin
           </>
         )}
       </main>
+      </div>
     </>
   );
 }

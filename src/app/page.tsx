@@ -69,6 +69,7 @@ export default async function Home() {
 
   return (
     <>
+      <div className="homeui">
       <HomeNav />
 
       <Hero
@@ -102,6 +103,7 @@ export default async function Home() {
           <LiveCounter since={siteConfig.togetherSince} initialDays={days} />
         </span>
       </footer>
+      </div>
     </>
   );
 }
