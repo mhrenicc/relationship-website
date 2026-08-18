@@ -165,8 +165,10 @@ section{position:relative;scroll-margin-top:4.5rem}
 .pile img:nth-child(3){margin-left:-0.6rem;transform:rotate(-3deg)}
 .card:hover .pile img:nth-child(2){transform:rotate(7deg) translateY(-2px)}
 .card:hover .pile img:nth-child(3){transform:rotate(-6deg) translateY(-2px)}
-/* top-left, because top-right now belongs to the edit and delete cluster */
-.count{position:absolute;top:0.7rem;left:0.7rem;z-index:2;background:oklch(0.2 0.04 320 / 0.6);
+/* Scoped to .obj: a bare `.count` also matched the bucketlist card's
+   "0 of 3 done", absolutely positioning it over the list title.
+   top-left, because top-right now belongs to the edit and delete cluster */
+.obj .count{position:absolute;top:0.7rem;left:0.7rem;z-index:2;background:oklch(0.2 0.04 320 / 0.6);
   backdrop-filter:blur(6px);color:#fff;font-size:0.75rem;font-weight:600;
   padding:0.28rem 0.65rem;border-radius:2rem}
 
@@ -362,8 +364,8 @@ section.places .more{color:var(--amber)}
 .listgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr));gap:clamp(1rem,2.2vw,2rem)}
 .list{background:oklch(1 0 0 / 0.12);border:1px solid oklch(1 0 0 / 0.22);border-radius:1rem;
   padding:clamp(1.25rem,2.2vw,1.75rem);backdrop-filter:blur(6px)}
-.list h3{font-size:1.5rem;font-weight:800;margin-bottom:0.25rem}
-.list .count{font-size:0.8125rem;opacity:0.78;font-weight:600}
+.list h3{font-size:1.5rem;font-weight:800;line-height:1.15;margin-bottom:0.2rem}
+.list .count{display:block;font-size:0.8125rem;opacity:0.78;font-weight:600}
 .list ul{list-style:none;margin:1rem 0 0;padding:0;display:grid;gap:0.6rem}
 .list li{display:flex;gap:0.7rem;align-items:flex-start;font-size:0.9375rem}
 /* The row is a button now so the band can be ticked off without opening the
