@@ -19,6 +19,22 @@ export const siteConfig = {
    * whole timeline scale.
    */
   togetherSince: "2021-08-20",
+  /**
+   * The photograph that opens the site, pinned by Marko.
+   *
+   * Without this the hero showed whichever set was newest, so it changed every
+   * time anything was added. He liked the prom night photograph and asked for
+   * it to stay.
+   *
+   * This is the storage key of one photograph, and keys belong to one store —
+   * this one exists in the deployed Blob store and not in a local filesystem
+   * store. When the key is not found the hero falls back to the newest set's
+   * lead photograph, which is what keeps local development from showing a
+   * broken image. Deleting that entry brings the fallback back too.
+   *
+   * Set it to null to go back to "whatever is newest".
+   */
+  heroPhotoKey: "92fc6a1e-3fc2-4a01-9925-aff0c9cca909" as string | null,
 };
 
 /**

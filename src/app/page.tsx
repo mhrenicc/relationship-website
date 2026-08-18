@@ -52,9 +52,15 @@ export default async function Home() {
     0,
   );
 
-  // The newest set's lead photograph opens the site; the stock hero only
-  // stands in until something real exists.
-  const lead = sets[0]?.photos[0];
+  // A pinned photograph opens the site if one is set and still stored;
+  // otherwise the newest set's lead photograph does, and the stock hero only
+  // stands in until something real exists. The pin is searched across every
+  // set rather than the feed, so a photograph hidden from the feed can still
+  // be the banner.
+  const pinned = siteConfig.heroPhotoKey
+    ? allSets.flatMap((set) => set.photos).find((p) => p.key === siteConfig.heroPhotoKey)
+    : undefined;
+  const lead = pinned ?? sets[0]?.photos[0];
   const heroPhoto = lead
     ? { src: photoSrc(lead, "full"), alt: lead.alt }
     : { src: placeholderHero.src, alt: placeholderHero.alt };
