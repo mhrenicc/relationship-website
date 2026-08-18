@@ -1,5 +1,5 @@
 import "server-only";
-import { readLive } from "@/lib/records";
+import * as repo from "@/lib/repo";
 import type { StoredSet } from "@/lib/storage";
 
 /**
@@ -9,7 +9,7 @@ import type { StoredSet } from "@/lib/storage";
  * fake.
  */
 export async function getSets(): Promise<{ sets: StoredSet[]; isPlaceholder: boolean }> {
-  const stored = await readLive("sets");
+  const stored = await repo.sets.all();
 
   if (stored.length === 0) {
     return { sets: [], isPlaceholder: true };

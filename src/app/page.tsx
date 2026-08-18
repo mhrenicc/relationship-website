@@ -18,7 +18,7 @@ import {
   placeholderSets,
   placeholderTrips,
 } from "@/lib/placeholder";
-import { readLive } from "@/lib/records";
+import * as repo from "@/lib/repo";
 import { siteConfig } from "@/lib/site-config";
 import { photoSrc } from "@/lib/storage/variants";
 import "./home.css";
@@ -28,10 +28,10 @@ export default async function Home() {
   const { sets: allSets } = await getSets();
 
   const [storedTrips, storedLists, storedMilestones, storedPlaces] = await Promise.all([
-    readLive("trips"),
-    readLive("lists"),
-    readLive("milestones"),
-    readLive("places"),
+    repo.trips.all(),
+    repo.lists.all(),
+    repo.moments.all(),
+    repo.places.all(),
   ]);
 
   // Placeholder-ness is decided per collection, not globally. Adding the first

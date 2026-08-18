@@ -3,7 +3,7 @@ import Link from "next/link";
 import { deleteTrip } from "@/app/trips-actions";
 import { CardActions } from "@/components/CardActions";
 import { getSets } from "@/lib/moments";
-import { readLive } from "@/lib/records";
+import * as repo from "@/lib/repo";
 import { photoSrc } from "@/lib/storage/variants";
 import { TripForm } from "./TripForm";
 import "../home.css";
@@ -22,7 +22,7 @@ const formatRange = (start: string, end: string) => {
 };
 
 export default async function TripsPage() {
-  const [trips, { sets }] = await Promise.all([readLive("trips"), getSets()]);
+  const [trips, { sets }] = await Promise.all([repo.trips.all(), getSets()]);
 
   const ordered = [...trips].sort((a, b) => b.start.localeCompare(a.start));
 

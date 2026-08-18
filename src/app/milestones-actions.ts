@@ -5,8 +5,8 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE_NAME, isValidSessionToken } from "@/lib/auth";
 import { toStoredDate, type Precision } from "@/lib/moment-date";
-import { deleteRecord, restoreRecord, updateRecord } from "@/lib/records";
-import { getPhotoStore, type Author, type StoredMilestone } from "@/lib/storage";
+import * as repo from "@/lib/repo";
+import type { Author, StoredMilestone } from "@/lib/storage";
 
 /** Server Actions are public endpoints, so every one re-checks the gate. */
 async function assertUnlocked(): Promise<boolean> {
@@ -67,11 +67,7 @@ export async function addMoment(_prev: MomentState, formData: FormData): Promise
     createdAt: new Date().toISOString(),
   };
 
-  const store = getPhotoStore();
-  // Straight to the store rather than readLive, so a deleted moment is not
-  // dropped from the file as a side effect of adding a new one.
-  const existing = await store.read("milestones");
-  await store.write("milestones", [...existing, moment]);
+  await repo.moments.add(moment);
 
   revalidatePath("/");
   revalidatePath("/deleted");
@@ -89,7 +85,7 @@ export async function updateMoment(_prev: MomentState, formData: FormData): Prom
   const fields = readMomentFields(formData);
   if ("error" in fields) return fields;
 
-  const found = await updateRecord("milestones", id, (moment) => ({
+  const found = await repo.moments.update(id, (moment) => ({
     ...moment,
     date: fields.date,
     text: fields.text,
@@ -106,14 +102,14 @@ export async function updateMoment(_prev: MomentState, formData: FormData): Prom
 
 export async function deleteMoment(id: string): Promise<void> {
   if (!(await assertUnlocked())) return;
-  await deleteRecord("milestones", id);
+  await repo.moments.remove(id);
   revalidatePath("/");
   revalidatePath("/deleted");
 }
 
 export async function restoreMoment(id: string): Promise<void> {
   if (!(await assertUnlocked())) return;
-  await restoreRecord("milestones", id);
+  await repo.moments.restore(id);
   revalidatePath("/");
   revalidatePath("/deleted");
 }

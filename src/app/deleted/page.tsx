@@ -7,7 +7,7 @@ import { restorePlace } from "@/app/places-actions";
 import { restoreSet } from "@/app/sets-actions";
 import { restoreTrip } from "@/app/trips-actions";
 import { Nav } from "@/components/Nav";
-import { readDeleted } from "@/lib/records";
+import * as repo from "@/lib/repo";
 import { photoSrc } from "@/lib/storage/variants";
 import { DeletedRow } from "./DeletedRow";
 
@@ -22,11 +22,11 @@ const formatDate = (iso: string) =>
 
 export default async function DeletedPage() {
   const [sets, trips, places, moments, lists] = await Promise.all([
-    readDeleted("sets"),
-    readDeleted("trips"),
-    readDeleted("places"),
-    readDeleted("milestones"),
-    readDeleted("lists"),
+    repo.sets.deleted(),
+    repo.trips.deleted(),
+    repo.places.deleted(),
+    repo.moments.deleted(),
+    repo.lists.deleted(),
   ]);
   const isEmpty =
     sets.length === 0 &&

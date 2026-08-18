@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Nav } from "@/components/Nav";
-import { findRecord, readLive } from "@/lib/records";
+import * as repo from "@/lib/repo";
 import { EditSetForm } from "./EditSetForm";
 
 export const metadata: Metadata = { title: "Edit · Us" };
 
 export default async function EditSetPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [set, trips] = await Promise.all([findRecord("sets", id), readLive("trips")]);
+  const [set, trips] = await Promise.all([repo.sets.find(id), repo.trips.all()]);
 
   // A deleted set is reachable only from /deleted, and restoring it comes
   // first — editing something that is not on the site is a confusing place to

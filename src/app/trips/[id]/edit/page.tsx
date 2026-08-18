@@ -3,14 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Nav } from "@/components/Nav";
 import { getSetsForTrip } from "@/lib/moments";
-import { findRecord } from "@/lib/records";
+import * as repo from "@/lib/repo";
 import { EditTripForm } from "./EditTripForm";
 
 export const metadata: Metadata = { title: "Edit trip · Us" };
 
 export default async function EditTripPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const trip = await findRecord("trips", id);
+  const trip = await repo.trips.find(id);
 
   if (!trip || trip.deletedAt) notFound();
 

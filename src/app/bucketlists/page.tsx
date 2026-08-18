@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { readLive } from "@/lib/records";
+import * as repo from "@/lib/repo";
 import { BucketList } from "./BucketList";
 import { NewList } from "./NewList";
 import "../home.css";
@@ -9,7 +9,7 @@ import "./bucketlists.css";
 export const metadata: Metadata = { title: "Bucketlists · Us" };
 
 export default async function BucketlistsPage() {
-  const lists = await readLive("lists");
+  const lists = await repo.lists.all();
   // Newest last would bury a list the moment it is made.
   const ordered = [...lists].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 

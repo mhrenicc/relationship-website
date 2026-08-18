@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Nav } from "@/components/Nav";
-import { readLive } from "@/lib/records";
+import * as repo from "@/lib/repo";
 import { AddForm } from "./AddForm";
 
 export const metadata: Metadata = { title: "Add · Us" };
@@ -11,7 +11,7 @@ export default async function AddPage({
   searchParams: Promise<{ trip?: string }>;
 }) {
   const { trip } = await searchParams;
-  const trips = await readLive("trips");
+  const trips = await repo.trips.all();
 
   return (
     <>

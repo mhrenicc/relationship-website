@@ -4,7 +4,8 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE_NAME, isValidSessionToken } from "@/lib/auth";
-import { getPhotoStore, type Author, type StoredPhoto, type StoredSet } from "@/lib/storage";
+import * as repo from "@/lib/repo";
+import type { Author, StoredPhoto, StoredSet } from "@/lib/storage";
 import { UnsupportedImageError, processUpload } from "@/lib/storage/images";
 
 /**
@@ -79,9 +80,7 @@ export async function createSet(
   };
 
   try {
-    const store = getPhotoStore();
-    const existing = await store.read("sets");
-    await store.write("sets", [...existing, set]);
+    await repo.sets.add(set);
   } catch (error: unknown) {
     console.error("Saving a set failed", error);
     const detail = error instanceof Error ? error.message : String(error);
@@ -149,7 +148,6 @@ export async function addSet(_prev: AddState, formData: FormData): Promise<AddSt
     return { error: "Say who is posting this." };
   }
 
-  const store = getPhotoStore();
 
   try {
     const photos = [];
@@ -172,8 +170,7 @@ export async function addSet(_prev: AddState, formData: FormData): Promise<AddSt
       createdAt: new Date().toISOString(),
     };
 
-    const existing = await store.read("sets");
-    await store.write("sets", [...existing, set]);
+    await repo.sets.add(set);
   } catch (error: unknown) {
     if (error instanceof UnsupportedImageError) {
       return { error: `${error.message}. Use JPG, PNG, WebP, AVIF or HEIC.` };

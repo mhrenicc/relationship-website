@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FavoriteHeart } from "@/components/FavoriteHeart";
 import { getSetsForTrip } from "@/lib/moments";
-import { findRecord } from "@/lib/records";
+import * as repo from "@/lib/repo";
 import type { StoredPhoto } from "@/lib/storage";
 import { photoSrc } from "@/lib/storage/variants";
 import "../../home.css";
@@ -79,7 +79,7 @@ const formatRange = (start: string, end: string) => {
 
 export default async function TripPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const trip = await findRecord("trips", id);
+  const trip = await repo.trips.find(id);
   if (!trip || trip.deletedAt) notFound();
 
   const sets = await getSetsForTrip(id);

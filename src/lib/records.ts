@@ -3,6 +3,9 @@ import { getPhotoStore } from "@/lib/storage";
 import type { Collection, CollectionShape } from "@/lib/storage";
 
 /**
+ * The mechanics behind `src/lib/repo.ts`, which is what the app should import.
+ * Nothing outside the repository is expected to call these directly.
+ *
  * The single place records are read and written.
  *
  * Deleting marks `deletedAt` rather than dropping the row, so nothing is ever

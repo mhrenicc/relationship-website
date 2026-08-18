@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE_NAME, isValidSessionToken } from "@/lib/auth";
-import { deleteRecord, findRecord, restoreRecord, updateRecord } from "@/lib/records";
+import * as repo from "@/lib/repo";
 import type { Author, StoredPhoto } from "@/lib/storage";
 import { UnsupportedImageError, processUpload } from "@/lib/storage/images";
 
@@ -57,7 +57,7 @@ export async function updateSet(_prev: SetState, formData: FormData): Promise<Se
   if (!ISO.test(date) || Number.isNaN(Date.parse(date))) return { error: "Pick a valid date." };
   if (!AUTHORS.has(addedBy)) return { error: "Say who posted this." };
 
-  const found = await updateRecord("sets", id, (set) => ({
+  const found = await repo.sets.update(id, (set) => ({
     ...set,
     caption,
     date,
@@ -80,13 +80,13 @@ export async function updateSet(_prev: SetState, formData: FormData): Promise<Se
 /** Hides a set. The photographs survive and can be restored from /deleted. */
 export async function deleteSet(id: string): Promise<void> {
   if (!(await assertUnlocked())) return;
-  await deleteRecord("sets", id);
+  await repo.sets.remove(id);
   revalidateEverywhere();
 }
 
 export async function restoreSet(id: string): Promise<void> {
   if (!(await assertUnlocked())) return;
-  await restoreRecord("sets", id);
+  await repo.sets.restore(id);
   revalidateEverywhere();
 }
 
@@ -103,7 +103,7 @@ export async function removePhoto(setId: string, photoKey: string): Promise<SetS
     return { error: "Your session expired. Reload and unlock again." };
   }
 
-  const set = await findRecord("sets", setId);
+  const set = await repo.sets.find(setId);
   if (!set) return { error: "That entry no longer exists." };
   if (!set.photos.some((photo) => photo.key === photoKey)) {
     return { error: "That photograph is already gone." };
@@ -112,7 +112,7 @@ export async function removePhoto(setId: string, photoKey: string): Promise<SetS
     return { error: "That is the last photograph. Delete the whole entry instead." };
   }
 
-  await updateRecord("sets", setId, (row) => ({
+  await repo.sets.update(setId, (row) => ({
     ...row,
     photos: row.photos.filter((photo) => photo.key !== photoKey),
   }));
@@ -130,7 +130,7 @@ export async function removePhoto(setId: string, photoKey: string): Promise<SetS
 export async function toggleFavorite(setId: string, photoKey: string): Promise<void> {
   if (!(await assertUnlocked())) return;
 
-  await updateRecord("sets", setId, (set) => ({
+  await repo.sets.update(setId, (set) => ({
     ...set,
     photos: set.photos.map((photo) =>
       photo.key === photoKey ? { ...photo, favorite: !photo.favorite } : photo,
@@ -158,7 +158,7 @@ export async function addPhotos(_prev: SetState, formData: FormData): Promise<Se
     return { error: "One of those is over 25MB. Try a smaller version." };
   }
 
-  const set = await findRecord("sets", id);
+  const set = await repo.sets.find(id);
   if (!set) return { error: "That entry no longer exists." };
 
   try {
@@ -169,7 +169,7 @@ export async function addPhotos(_prev: SetState, formData: FormData): Promise<Se
       added.push({ ...photo, alt: set.caption });
     }
 
-    await updateRecord("sets", id, (row) => ({ ...row, photos: [...row.photos, ...added] }));
+    await repo.sets.update(id, (row) => ({ ...row, photos: [...row.photos, ...added] }));
   } catch (error: unknown) {
     if (error instanceof UnsupportedImageError) {
       return { error: `${error.message}. Use JPG, PNG, WebP, AVIF or HEIC.` };

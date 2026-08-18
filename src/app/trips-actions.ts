@@ -4,8 +4,8 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE_NAME, isValidSessionToken } from "@/lib/auth";
-import { deleteRecord, readLive, restoreRecord, updateRecord } from "@/lib/records";
-import { getPhotoStore, type StoredTrip } from "@/lib/storage";
+import * as repo from "@/lib/repo";
+import { type StoredTrip } from "@/lib/storage";
 
 export type TripState = { error?: string; added?: string; saved?: string };
 
@@ -65,11 +65,7 @@ export async function addTrip(_prev: TripState, formData: FormData): Promise<Tri
     createdAt: new Date().toISOString(),
   };
 
-  const store = getPhotoStore();
-  // Writes go through the store rather than readLive, so a deleted trip is not
-  // dropped from the file as a side effect of adding a new one.
-  const existing = await store.read("trips");
-  await store.write("trips", [...existing, trip]);
+  await repo.trips.add(trip);
 
   revalidatePath("/");
   revalidatePath("/trips");
@@ -88,7 +84,7 @@ export async function updateTrip(_prev: TripState, formData: FormData): Promise<
   if ("error" in fields) return fields;
   const { name, start, end, note, places } = fields;
 
-  const found = await updateRecord("trips", id, (trip) => ({
+  const found = await repo.trips.update(id, (trip) => ({
     ...trip,
     name,
     places,
@@ -116,12 +112,12 @@ export async function updateTrip(_prev: TripState, formData: FormData): Promise<
 export async function deleteTrip(id: string): Promise<void> {
   if (!(await assertUnlocked())) return;
 
-  await deleteRecord("trips", id);
+  await repo.trips.remove(id);
 
-  const sets = await readLive("sets");
-  for (const set of sets) {
+  const attached = await repo.sets.all();
+  for (const set of attached) {
     if (set.tripId === id && !set.inFeed) {
-      await updateRecord("sets", set.id, (row) => ({ ...row, inFeed: true }));
+      await repo.sets.update(set.id, (row) => ({ ...row, inFeed: true }));
     }
   }
 
@@ -133,7 +129,7 @@ export async function deleteTrip(id: string): Promise<void> {
 
 export async function restoreTrip(id: string): Promise<void> {
   if (!(await assertUnlocked())) return;
-  await restoreRecord("trips", id);
+  await repo.trips.restore(id);
   revalidatePath("/");
   revalidatePath("/trips");
   revalidatePath("/deleted");

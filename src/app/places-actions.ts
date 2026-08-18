@@ -4,8 +4,8 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE_NAME, isValidSessionToken } from "@/lib/auth";
-import { deleteRecord, readLive, restoreRecord, updateRecord } from "@/lib/records";
-import { getPhotoStore, type Author, type StoredPlace } from "@/lib/storage";
+import * as repo from "@/lib/repo";
+import { type Author, type StoredPlace } from "@/lib/storage";
 
 /** Server Actions are public endpoints, so every one re-checks the gate. */
 async function assertUnlocked(): Promise<boolean> {
@@ -79,10 +79,9 @@ export async function addPlace(_prev: PlaceState, formData: FormData): Promise<P
   if (name.length === 0) return { error: "Give the place a name." };
   if (name.length > 80) return { error: "That name is too long." };
 
-  const store = getPhotoStore();
-  const places = await readLive("places");
+  const existing = await repo.places.all();
 
-  if (places.some((place) => place.name.toLowerCase() === name.toLowerCase())) {
+  if (existing.some((place) => place.name.toLowerCase() === name.toLowerCase())) {
     return { error: `${name} is already on the list.` };
   }
 
@@ -99,7 +98,7 @@ export async function addPlace(_prev: PlaceState, formData: FormData): Promise<P
     createdAt: new Date().toISOString(),
   };
 
-  await store.write("places", [...places, place]);
+  await repo.places.add(place);
   revalidatePath("/");
   return {};
 }
@@ -107,7 +106,7 @@ export async function addPlace(_prev: PlaceState, formData: FormData): Promise<P
 export async function togglePlace(id: string): Promise<void> {
   if (!(await assertUnlocked())) return;
 
-  await updateRecord("places", id, (place) => ({ ...place, been: !place.been }));
+  await repo.places.update(id, (place) => ({ ...place, been: !place.been }));
   revalidatePath("/");
 }
 
@@ -122,7 +121,7 @@ export async function togglePlace(id: string): Promise<void> {
 export async function deletePlace(id: string): Promise<void> {
   if (!(await assertUnlocked())) return;
 
-  await deleteRecord("places", id);
+  await repo.places.remove(id);
   revalidatePath("/");
   revalidatePath("/deleted");
 }
@@ -130,7 +129,7 @@ export async function deletePlace(id: string): Promise<void> {
 export async function restorePlace(id: string): Promise<void> {
   if (!(await assertUnlocked())) return;
 
-  await restoreRecord("places", id);
+  await repo.places.restore(id);
   revalidatePath("/");
   revalidatePath("/deleted");
 }
