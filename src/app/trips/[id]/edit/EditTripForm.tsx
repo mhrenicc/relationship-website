@@ -34,20 +34,6 @@ export function EditTripForm({ trip }: { trip: StoredTrip }) {
         <input type="hidden" name="id" value={trip.id} />
 
         <div>
-          <label htmlFor="name" className={label}>
-            What do you call it
-          </label>
-          <input
-            id="name"
-            name="name"
-            required
-            maxLength={120}
-            defaultValue={trip.name}
-            className={field}
-          />
-        </div>
-
-        <div>
           <label htmlFor="places" className={label}>
             Where
           </label>
@@ -59,7 +45,7 @@ export function EditTripForm({ trip }: { trip: StoredTrip }) {
             className={field}
           />
           <p className="mt-2 text-[length:var(--text-meta)] text-[var(--color-ink-soft)]">
-            Separate places with commas.
+            What you will call it. Separate multiple stops with commas.
           </p>
         </div>
 

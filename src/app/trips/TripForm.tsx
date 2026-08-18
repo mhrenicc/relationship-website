@@ -31,19 +31,6 @@ export function TripForm() {
       </div>
 
       <form key={state.added ?? "new"} action={formAction} className="flex flex-col gap-6">
-        <div>
-          <label htmlFor="name" className={label}>
-            What do you call it
-          </label>
-          <input
-            id="name"
-            name="name"
-            required
-            maxLength={120}
-            placeholder="The one with the ferry"
-            className={field}
-          />
-        </div>
 
         <div>
           <label htmlFor="places" className={label}>
@@ -53,11 +40,11 @@ export function TripForm() {
             id="places"
             name="places"
             required
-            placeholder="Split, Hvar, Vis"
+            placeholder="Lisbon, Portugal"
             className={field}
           />
           <p className="mt-2 text-[length:var(--text-meta)] text-[var(--color-ink-soft)]">
-            Separate places with commas.
+            What you will call it. Separate multiple stops with commas.
           </p>
         </div>
 

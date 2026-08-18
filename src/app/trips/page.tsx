@@ -82,7 +82,9 @@ export default async function TripsPage() {
                     </span>
                     <span className="cap">
                       <b>{trip.name}</b>
+                      {trip.places.join(", ") !== trip.name && (
                       <span className="places">{trip.places.join(" · ")}</span>
+                    )}
                       <span className="dates">
                         {formatRange(trip.start, trip.end)}
                         {photos.length > 0 && ` · ${photos.length} photos`}

@@ -21,23 +21,27 @@ async function assertUnlocked(): Promise<boolean> {
 function readTripFields(formData: FormData):
   | { error: string }
   | { name: string; start: string; end: string; note: string; places: string[] } {
-  const name = String(formData.get("name") ?? "").trim();
+  // A trip is named by where it was — "Lisbon, Portugal". There is no separate
+  // title to invent, so the location field is the name, and the comma-split
+  // parts are kept as `places` for the map and for trips across several stops.
+  const where = String(formData.get("places") ?? "").trim();
+  const name = where;
   const start = String(formData.get("start") ?? "").trim();
   const end = String(formData.get("end") ?? "").trim();
   const note = String(formData.get("note") ?? "").trim();
-  const places = String(formData.get("places") ?? "")
+  const places = where
     .split(",")
     .map((place) => place.trim())
     .filter(Boolean);
 
-  if (name.length === 0) return { error: "Give the trip a name." };
-  if (name.length > 120) return { error: "That name is too long." };
+  if (name.length === 0) return { error: "Where was it?" };
+  if (name.length > 120) return { error: "That is too long." };
   if (!ISO.test(start) || Number.isNaN(Date.parse(start))) return { error: "Pick a start date." };
   if (!ISO.test(end) || Number.isNaN(Date.parse(end))) return { error: "Pick an end date." };
   if (Date.parse(end) < Date.parse(start)) {
     return { error: "The trip cannot end before it starts." };
   }
-  if (places.length === 0) return { error: "Add at least one place." };
+  if (places.length === 0) return { error: "Where was it?" };
 
   return { name, start, end, note, places };
 }
